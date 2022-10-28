@@ -268,7 +268,33 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.815" />
+        app:layout_constraintVertical_bias="0.677" />
+
+    <ToggleButton
+        android:id="@+id/speedBreaker"
+        android:layout_width="137dp"
+        android:layout_height="61dp"
+        android:text="Speedbreaker"
+        android:textOff="No Speedbreaker"
+        android:textOn="Speedbreaker Detected"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.752" />
+
+    <ToggleButton
+        android:id="@+id/swerve"
+        android:layout_width="137dp"
+        android:layout_height="61dp"
+        android:text="Swerve"
+        android:textOff="No sudden change"
+        android:textOn="Sudden change"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.832" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

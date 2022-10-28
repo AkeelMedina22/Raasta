@@ -13,9 +13,16 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.*
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import java.security.AccessController.getContext
+import java.text.SimpleDateFormat
+import java.util.*
+import android.provider.Settings
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var mSensorManager : SensorManager
@@ -29,7 +36,14 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     // globally declare LocationCallback
     private lateinit var locationCallback: LocationCallback
 
+    // added this line - abeer
+    //private val android_id = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
+    private lateinit var database: DatabaseReference
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
+
+
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -41,9 +55,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        mSensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        mSensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         mGyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
+
+        database = FirebaseDatabase.getInstance().getReference("sensor-data")
 
         getLocationUpdates()
 
@@ -118,7 +134,30 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onSensorChanged(event: SensorEvent?) {
         // update onlocation result here,, but how ?
+//
+//        // add timestamp to database record
+//        database.child(uid).setValue(formatteddate)
+//        database.child(uid).setValue((android_id))
+
+
         if (event != null && resume) {
+
+
+
+            val date = Date()
+            val formatting = SimpleDateFormat("yyyymmddhhmmss")
+            val formatteddate = formatting.format(date)
+
+//        val uid = android_id + "-" + formatteddate
+//        println("uid")
+
+            //add this to database
+            database.child(formatteddate).child("timestamp").setValue(formatteddate).addOnSuccessListener {
+                Toast.makeText(this, "Succesfully saved!", Toast.LENGTH_SHORT).show()
+            }.addOnFailureListener{
+                Toast.makeText(this, "Failed!", Toast.LENGTH_SHORT).show()
+            }
+
             if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
                 val accX = event.values[0]
                 val temp01:Double = String.format("%.3f", accX).toDouble()
@@ -137,6 +176,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 val temp22:Double = String.format("%.2f", temp21).toDouble()
                 val temp23:Double = String.format("%.1f", temp22).toDouble()
                 findViewById<TextView>(R.id.acc_Z).text = temp23.toString()
+
+                database.child(formatteddate).child("accelerometer-x").setValue(temp03.toString())
+                database.child(formatteddate).child("accelerometer-y").setValue(temp13.toString())
+                database.child(formatteddate).child("accelerometer-z").setValue(temp23.toString())
+
             }
 
             if (event.sensor.type == Sensor.TYPE_GYROSCOPE) {
@@ -157,6 +201,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 val temp22:Double = String.format("%.2f", temp21).toDouble()
                 val temp23:Double = String.format("%.1f", temp22).toDouble()
                 findViewById<TextView>(R.id.gyro_z).text = temp23.toString()
+
+                database.child(formatteddate).child("gyroscope-x").setValue(temp03.toString())
+                database.child(formatteddate).child("gyroscope-y").setValue(temp13.toString())
+                database.child(formatteddate).child("gyroscope-z").setValue(temp23.toString())
             }
         }
     }
