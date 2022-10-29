@@ -1,5 +1,8 @@
 package com.example.kaavish
 
+// To-do:
+// Labelling data, changing database structure, changing code to match it, requiring wifi connection? what happens with no wifi.
+
 import android.Manifest
 import android.content.Context
 import android.content.pm.ActivityInfo
@@ -23,28 +26,38 @@ import java.security.AccessController.getContext
 import java.text.SimpleDateFormat
 import java.util.*
 import android.provider.Settings
+import android.annotation.SuppressLint
+import android.location.Location
+import android.location.LocationManager
+import android.util.Log
+import androidx.core.location.LocationManagerCompat.isLocationEnabled
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
+
+    companion object {
+        private const val UPDATE_INTERVAL_IN_MILLISECONDS = 500L
+        private const val FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
+            UPDATE_INTERVAL_IN_MILLISECONDS / 2
+    }
+    lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    lateinit var locationRequest : LocationRequest
+    lateinit var locationResult : Location
+    var latitude : Double = 0.0
+    var longitude : Double = 0.0
+
     private lateinit var mSensorManager : SensorManager
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var mAccelerometer : Sensor ?= null
     private var mGyroscope : Sensor ?= null
     private var resume = false
-    // globally declare LocationRequest
-    private lateinit var locationRequest: LocationRequest
-
-    // globally declare LocationCallback
-    private lateinit var locationCallback: LocationCallback
 
     // added this line - abeer
     //private val android_id = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
     private lateinit var database: DatabaseReference
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
 
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
@@ -61,88 +74,17 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
         database = FirebaseDatabase.getInstance().getReference("sensor-data")
 
-        getLocationUpdates()
+        getLastLocation()
 
     }
-
-    private fun getLocationUpdates()
-    {
-
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        locationRequest = LocationRequest()
-        locationRequest.interval = 50000
-        locationRequest.fastestInterval = 50000
-        locationRequest.smallestDisplacement = 170f // 170 m = 0.1 mile
-        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY //set according to your app function
-
-        locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult?) {
-                println("hello")
-                locationResult ?: return
-
-                if (locationResult.locations.isNotEmpty()) {
-                    // get latest location
-                    val location =
-                        locationResult.lastLocation
-                    // use your location object
-                    // get latitude , longitude and other info from this
-                    val lat = location.latitude
-                    findViewById<TextView>(R.id.lat).text = lat.toString()
-                    val longt = location.longitude
-                    findViewById<TextView>(R.id.longt).text = longt.toString()
-
-                }
-            }
-        }
-    }
-
-    //start location updates
-    private fun startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return
-        }
-        fusedLocationClient.requestLocationUpdates(
-            locationRequest,
-            locationCallback,
-            null /* Looper */
-        )
-    }
-
-    // stop location updates
-    private fun stopLocationUpdates() {
-        fusedLocationClient.removeLocationUpdates(locationCallback)
-    }
-
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
         print("accuracy changed")
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
-        // update onlocation result here,, but how ?
-//
-//        // add timestamp to database record
-//        database.child(uid).setValue(formatteddate)
-//        database.child(uid).setValue((android_id))
-
 
         if (event != null && resume) {
-
-
 
             val date = Date()
             val formatting = SimpleDateFormat("yyyymmddhhmmss")
@@ -157,6 +99,19 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             }.addOnFailureListener{
                 Toast.makeText(this, "Failed!", Toast.LENGTH_SHORT).show()
             }
+
+            try{
+                latitude = locationResult.latitude
+                longitude = locationResult.longitude
+                findViewById<TextView>(R.id.longt).text = longitude.toString()
+                findViewById<TextView>(R.id.lat).text = latitude.toString()
+                database.child(formatteddate).child("latitude").setValue(latitude.toString())
+                database.child(formatteddate).child("longitude").setValue(longitude.toString())
+            }
+            catch(e: Exception){
+                println("failed")
+            }
+
 
             if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
                 val accX = event.values[0]
@@ -213,12 +168,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         super.onResume()
         mSensorManager.registerListener(this, mAccelerometer, 500000, 500000)
         mSensorManager.registerListener(this, mGyroscope, 500000, 500000)
-        startLocationUpdates()
     }
 
     override fun onPause() {
         super.onPause()
-        stopLocationUpdates()
         mSensorManager.unregisterListener(this)
     }
 
@@ -228,5 +181,95 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     fun pauseReading(view: View) {
         this.resume = false
+    }
+
+    // LOCATION STUFF
+
+    @SuppressLint("MissingPermission")
+    private fun getLastLocation() {
+        if(CheckPermission()){
+            if(isLocationEnabled()){
+
+                fusedLocationProviderClient.lastLocation.addOnCompleteListener{task ->
+                    var location = task.result
+                    if(location == null){
+
+                        getNewLocation()
+                    }else {
+                        locationResult = location
+                    }
+                }
+
+            }else{
+                Toast.makeText(this, "Location service not enabled", Toast.LENGTH_SHORT).show()
+            }
+
+        }else{
+            RequestPermission()
+        }
+    }
+
+    private fun CheckPermission() : Boolean {
+        if( (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+            || (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) ){
+            return true
+        }
+
+        return false
+    }
+
+    private fun RequestPermission() {
+
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ), 1000
+        )
+
+    }
+
+    private fun isLocationEnabled() : Boolean{
+        var locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == 1000){
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                println("Permission granted")
+            }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getNewLocation(){
+        locationRequest = LocationRequest()
+        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        locationRequest.interval = 0
+        locationRequest.fastestInterval = 0
+        locationRequest.numUpdates = 2
+        fusedLocationProviderClient!!.requestLocationUpdates(
+            locationRequest, locationCallback, null
+        )
+
+    }
+
+    private val locationCallback = object : LocationCallback() {
+        override fun onLocationResult(p0: LocationResult?){
+            var lastLocation = p0?.lastLocation
+
+            if (lastLocation != null) {
+                locationResult = lastLocation
+            }
+        }
+
     }
 }

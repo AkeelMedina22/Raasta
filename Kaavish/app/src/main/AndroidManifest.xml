@@ -27,6 +27,7 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
     </application>
 
 </manifest>
