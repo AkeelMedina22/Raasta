@@ -1,48 +1,87 @@
-package com.example.kaavish
+package com.example.workk
 
+// To-do:
+// Labelling data, changing database structure, changing code to match it, requiring wifi connection? what happens with no wifi.
+
+import android.Manifest
 import android.content.Context
 import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
-import android.provider.Settings
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
-import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import androidx.core.app.ActivityCompat
+import com.google.android.gms.location.*
+import java.security.AccessController.getContext
 import java.text.SimpleDateFormat
 import java.util.*
-
-
-//import com.google.android.gms.location.*
+import android.provider.Settings
+import android.annotation.SuppressLint
+import android.database.DatabaseErrorHandler
+import android.location.Location
+import android.location.LocationManager
+import android.util.Log
+import android.widget.Button
+import androidx.core.location.LocationManagerCompat.isLocationEnabled
+import com.google.firebase.database.*
+import com.google.firebase.database.core.ValueEventRegistration
+import java.time.format.DateTimeFormatterBuilder
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
 
+    // location initialization
+    companion object {
+        private const val UPDATE_INTERVAL_IN_MILLISECONDS = 500L
+        private const val FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
+            UPDATE_INTERVAL_IN_MILLISECONDS / 2
+    }
+    lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    lateinit var locationRequest : LocationRequest
+    lateinit var locationResult : Location
+    var latitude : Double = 0.0
+    var longitude : Double = 0.0
+
+    // sensor initialization
     private lateinit var mSensorManager : SensorManager
     private var mAccelerometer : Sensor ?= null
     private var mGyroscope : Sensor ?= null
+
+    // start button flag
     private var resume = false
 
-    private val android_id = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
+    // category button click counts
+    private var pothole_btn_click = 0
+    private var speedbreaker_btn_click = 0
+    private var traffic_btn_click = 0
+    private var schange_btn_click = 0
+    private var broad_btn_click = 0
 
-    // start and stop button
-    private val start = findViewById(R.id.start_button) as Button
-    private val stop = findViewById(R.id.stop_button) as Button
+    // category labels
+    private var label = "Normal Road"
+    private var pothole_l = "Pothole"
+    private var speedbreaker_l = "Speedbreaker"
+    private var traffic_l = "Traffic"
+    private var schange_l = "Sudden Change"
+    private var broad_l = "Bad Road"
 
-    private var start_flag = false
-    private var stop_flag = true
+    private var android_id : String = ""
+    private var session_id : String = ""
 
-    // database reference
+    // database initialization
     private lateinit var database: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         window.setFlags(
@@ -52,24 +91,30 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        mSensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        mSensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         mGyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
 
         database = FirebaseDatabase.getInstance().getReference("sensor-data")
 
-        start.setOnClickListener{
-            print("Start button has been clicked")
-            start_flag = true
-            stop_flag = false
-        }
+        android_id = Settings.Secure.getString(this.contentResolver, Settings.Secure.ANDROID_ID)
 
-        stop.setOnClickListener{
-            print("Stop button has been clicked")
-            start_flag = false
-            stop_flag = true
-        }
+        session_id = UUID.randomUUID().toString()
 
+        //check if session_id exists in the database
+//        database.addValueEventListener(object : ValueEventListener {
+//            override fun onDataChange(dataSnapshot : DataSnapshot)
+//            {
+//                while(dataSnapshot.child(session_id).exists())
+//                {
+//                    session_id = UUID.randomUUID().toString()
+//                }
+//            }
+//            override fun onCancelled(error : DatabaseError)
+//            {}
+//        })
+
+        getLastLocation()
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
@@ -77,28 +122,193 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
-        // update onlocation result here,, but how ?
 
-        // get current date - part of the unique identifier
-        val date = Date()
-        val formatting = SimpleDateFormat("yyyymmddhhmmss")
-        val formatteddate = formatting.format(date)
-
-        val uid = android_id + "-" + formatteddate
-        print(uid)
-
-        // add this to database
-        database.child(uid).setValue(uid).addOnSuccessListener {
-            Toast.makeText(this, "Succesfully saved!", Toast.LENGTH_SHORT).show()
-        }.addOnFailureListener{
-            Toast.makeText(this, "Failed!", Toast.LENGTH_SHORT).show()
-        }
-
-        // add timestamp to database record
-        database.child(uid).setValue(formatteddate)
-        database.child(uid).setValue((android_id))
-
+        // when start button is pressed, data will start getting collected
         if (event != null && resume) {
+
+            val date = Date()
+            val formatting = SimpleDateFormat("yyyyMMddHHmmss")
+            val formatteddate = formatting.format(date)
+
+            //add this to database
+            database.child(session_id).child(formatteddate).child("timestamp").setValue(formatteddate).addOnSuccessListener {
+                Toast.makeText(this, "Succesfully saved!", Toast.LENGTH_SHORT).show()
+            }.addOnFailureListener{
+                Toast.makeText(this, "Failed!", Toast.LENGTH_SHORT).show()
+            }
+
+            database.child(session_id).child(formatteddate).child("android-id").setValue(android_id)
+
+            val pothole_btn = findViewById<Button>(R.id.pothole)
+            val speedbreaker_btn = findViewById<Button>(R.id.speedbreaker)
+            val traffic_btn = findViewById<Button>(R.id.traffic)
+            val bad_road_btn = findViewById<Button>(R.id.badroad)
+            val sudden_change_btn = findViewById<Button>(R.id.suddenchange)
+
+            pothole_btn.setOnClickListener(object : View.OnClickListener {
+                override fun onClick(view: View)
+                {
+                    pothole_btn_click = pothole_btn_click + 1
+                    if (pothole_btn_click == 1)
+                    {
+                        database.child(session_id).child(formatteddate).child("label").setValue(pothole_l)
+                        speedbreaker_btn.setEnabled(false)
+                        traffic_btn.setEnabled(false)
+                        bad_road_btn.setEnabled(false)
+                        sudden_change_btn.setEnabled(false)
+                    }
+                    else
+                    {
+                        database.child(session_id).child(formatteddate).child("label").setValue(label)
+                        pothole_btn_click = 0
+                        speedbreaker_btn.setEnabled(true)
+                        traffic_btn.setEnabled(true)
+                        bad_road_btn.setEnabled(true)
+                        sudden_change_btn.setEnabled(true)
+                    }
+                }
+            })
+
+            speedbreaker_btn.setOnClickListener(object : View.OnClickListener
+            {
+                override fun onClick(view : View)
+                {
+                    speedbreaker_btn_click = speedbreaker_btn_click + 1
+                    if (speedbreaker_btn_click == 1)
+                    {
+                        database.child(session_id).child(formatteddate).child("label").setValue(speedbreaker_l)
+                        pothole_btn.setEnabled(false)
+                        traffic_btn.setEnabled(false)
+                        bad_road_btn.setEnabled(false)
+                        sudden_change_btn.setEnabled(false)
+                    }
+                    else
+                    {
+                        database.child(session_id).child(formatteddate).child("label").setValue(label)
+                        speedbreaker_btn_click = 0
+                        pothole_btn.setEnabled(true)
+                        traffic_btn.setEnabled(true)
+                        bad_road_btn.setEnabled(true)
+                        sudden_change_btn.setEnabled(true)
+                    }
+                }
+            })
+
+            traffic_btn.setOnClickListener(object : View.OnClickListener
+            {
+                override fun onClick(view : View)
+                {
+                    traffic_btn_click = traffic_btn_click + 1
+                    if (traffic_btn_click == 1)
+                    {
+                        database.child(session_id).child(formatteddate).child("label").setValue(traffic_l)
+                        pothole_btn.setEnabled(false)
+                        speedbreaker_btn.setEnabled(false)
+                        bad_road_btn.setEnabled(false)
+                        sudden_change_btn.setEnabled(false)
+                    }
+                    else
+                    {
+                        database.child(session_id).child(formatteddate).child("label").setValue(label)
+                        traffic_btn_click = 0
+                        pothole_btn.setEnabled(true)
+                        speedbreaker_btn.setEnabled(true)
+                        bad_road_btn.setEnabled(true)
+                        sudden_change_btn.setEnabled(true)
+                    }
+                }
+            })
+
+            bad_road_btn.setOnClickListener(object : View.OnClickListener
+            {
+                override fun onClick(view : View)
+                {
+                    broad_btn_click = broad_btn_click + 1
+                    if (broad_btn_click == 1)
+                    {
+                        database.child(session_id).child(formatteddate).child("label").setValue(broad_l)
+                        pothole_btn.setEnabled(false)
+                        traffic_btn.setEnabled(false)
+                        speedbreaker_btn.setEnabled(false)
+                        sudden_change_btn.setEnabled(false)
+                    }
+                    else
+                    {
+                        database.child(session_id).child(formatteddate).child("label").setValue(label)
+                        broad_btn_click = 0
+                        pothole_btn.setEnabled(true)
+                        traffic_btn.setEnabled(true)
+                        speedbreaker_btn.setEnabled(true)
+                        sudden_change_btn.setEnabled(true)
+                    }
+                }
+            })
+
+            sudden_change_btn.setOnClickListener(object : View.OnClickListener
+            {
+                override fun onClick(view : View)
+                {
+                    schange_btn_click = schange_btn_click + 1
+                    if (schange_btn_click == 1)
+                    {
+                        database.child(session_id).child(formatteddate).child("label").setValue(schange_l)
+                        pothole_btn.setEnabled(false)
+                        traffic_btn.setEnabled(false)
+                        bad_road_btn.setEnabled(false)
+                        speedbreaker_btn.setEnabled(false)
+                    }
+                    else
+                    {
+                        database.child(session_id).child(formatteddate).child("label").setValue(label)
+                        schange_btn_click = 0
+                        pothole_btn.setEnabled(true)
+                        traffic_btn.setEnabled(true)
+                        bad_road_btn.setEnabled(true)
+                        speedbreaker_btn.setEnabled(true)
+                    }
+                }
+            })
+
+            if (((pothole_btn_click == 1) or (traffic_btn_click == 1) or (speedbreaker_btn_click == 1) or (schange_btn_click == 1) or (broad_btn_click == 1)))
+            {
+                if (pothole_btn_click == 1)
+                {
+                    database.child(session_id).child(formatteddate).child("label").setValue(pothole_l)
+                }
+                else if (traffic_btn_click == 1)
+                {
+                    database.child(session_id).child(formatteddate).child("label").setValue(traffic_l)
+                }
+                else if (speedbreaker_btn_click == 1)
+                {
+                    database.child(session_id).child(formatteddate).child("label").setValue(speedbreaker_l)
+                }
+                else if (schange_btn_click == 1)
+                {
+                    database.child(session_id).child(formatteddate).child("label").setValue(schange_l)
+                }
+                else if (broad_btn_click == 1)
+                {
+                    database.child(session_id).child(formatteddate).child("label").setValue(broad_l)
+                }
+            }
+            else
+            {
+                database.child(session_id).child(formatteddate).child("label").setValue(label)
+            }
+
+            try{
+                latitude = locationResult.latitude
+                longitude = locationResult.longitude
+                findViewById<TextView>(R.id.longt).text = longitude.toString()
+                findViewById<TextView>(R.id.lat).text = latitude.toString()
+                database.child(session_id).child(formatteddate).child("latitude").setValue(latitude.toString())
+                database.child(session_id).child(formatteddate).child("longitude").setValue(longitude.toString())
+            }
+            catch(e: Exception){
+                println("failed")
+            }
+
             if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
                 val accX = event.values[0]
                 val temp01:Double = String.format("%.3f", accX).toDouble()
@@ -118,14 +328,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 val temp23:Double = String.format("%.1f", temp22).toDouble()
                 findViewById<TextView>(R.id.acc_Z).text = temp23.toString()
 
-                // add in database if start button flag is true
-                if (start_flag == true )
-                {
-                    database.child(uid).setValue(temp03.toString())
-                    database.child(uid).setValue(temp13.toString())
-                    database.child(uid).setValue(temp23.toString())
-
-                }
+                database.child(session_id).child(formatteddate).child("accelerometer-x").setValue(temp03.toString())
+                database.child(session_id).child(formatteddate).child("accelerometer-y").setValue(temp13.toString())
+                database.child(session_id).child(formatteddate).child("accelerometer-z").setValue(temp23.toString())
             }
 
             if (event.sensor.type == Sensor.TYPE_GYROSCOPE) {
@@ -147,14 +352,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 val temp23:Double = String.format("%.1f", temp22).toDouble()
                 findViewById<TextView>(R.id.gyro_z).text = temp23.toString()
 
-                // add in database if start button flag is true
-                if (start_flag == true )
-                {
-                    database.child(uid).setValue(temp03.toString())
-                    database.child(uid).setValue(temp13.toString())
-                    database.child(uid).setValue(temp23.toString())
-
-                }
+                database.child(session_id).child(formatteddate).child("gyroscope-x").setValue(temp03.toString())
+                database.child(session_id).child(formatteddate).child("gyroscope-y").setValue(temp13.toString())
+                database.child(session_id).child(formatteddate).child("gyroscope-z").setValue(temp23.toString())
             }
         }
     }
@@ -167,10 +367,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onPause() {
         super.onPause()
-
         mSensorManager.unregisterListener(this)
     }
 
+    // button start and stop
     fun resumeReading(view: View) {
         this.resume = true
     }
@@ -178,48 +378,94 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     fun pauseReading(view: View) {
         this.resume = false
     }
-}
 
-//    private lateinit var appBarConfiguration: AppBarConfiguration
-//    private lateinit var binding: ActivityMainBinding
-//
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//
-//        binding = ActivityMainBinding.inflate(layoutInflater)
-//        setContentView(binding.root)
-//
-//        setSupportActionBar(binding.toolbar)
-//
-//        val navController = findNavController(R.id.nav_host_fragment_content_main)
-//        appBarConfiguration = AppBarConfiguration(navController.graph)
-//        setupActionBarWithNavController(navController, appBarConfiguration)
-//
-//        binding.fab.setOnClickListener { view ->
-//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                    .setAction("Action", null).show()
-//        }
-//    }
-//
-//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        menuInflater.inflate(R.menu.menu_main, menu)
-//        return true
-//    }
-//
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        // Handle action bar item clicks here. The action bar will
-//        // automatically handle clicks on the Home/Up button, so long
-//        // as you specify a parent activity in AndroidManifest.xml.
-//        return when (item.itemId) {
-//            R.id.action_settings -> true
-//            else -> super.onOptionsItemSelected(item)
-//        }
-//    }
-//
-//    override fun onSupportNavigateUp(): Boolean {
-//        val navController = findNavController(R.id.nav_host_fragment_content_main)
-//        return navController.navigateUp(appBarConfiguration)
-//                || super.onSupportNavigateUp()
-//    }
-//}
+    // LOCATION STUFF
+
+    @SuppressLint("MissingPermission")
+    private fun getLastLocation() {
+        if(CheckPermission()){
+            if(isLocationEnabled()){
+
+                fusedLocationProviderClient.lastLocation.addOnCompleteListener{task ->
+                    var location = task.result
+                    if(location == null){
+
+                        getNewLocation()
+                    }else {
+                        locationResult = location
+                    }
+                }
+
+            }else{
+                Toast.makeText(this, "Location service not enabled", Toast.LENGTH_SHORT).show()
+            }
+
+        }else{
+            RequestPermission()
+        }
+    }
+
+    private fun CheckPermission() : Boolean {
+        if( (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+            || (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) ){
+            return true
+        }
+
+        return false
+    }
+
+    private fun RequestPermission() {
+
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ), 1000
+        )
+
+    }
+
+    private fun isLocationEnabled() : Boolean{
+        var locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == 1000){
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                println("Permission granted")
+            }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getNewLocation(){
+        locationRequest = LocationRequest()
+        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        locationRequest.interval = 0
+        locationRequest.fastestInterval = 0
+        locationRequest.numUpdates = 2
+        fusedLocationProviderClient!!.requestLocationUpdates(
+            locationRequest, locationCallback, null
+        )
+
+    }
+
+    private val locationCallback = object : LocationCallback() {
+        override fun onLocationResult(p0: LocationResult?){
+            var lastLocation = p0?.lastLocation
+
+            if (lastLocation != null) {
+                locationResult = lastLocation
+            }
+        }
+
+    }
+}
