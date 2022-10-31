@@ -114,7 +114,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 //            {}
 //        })
 
-        getLastLocation()
+        //getLastLocation()
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
@@ -126,16 +126,14 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         // when start button is pressed, data will start getting collected
         if (event != null && resume) {
 
+            getLastLocation()
+
             val date = Date()
             val formatting = SimpleDateFormat("yyyyMMddHHmmss")
             val formatteddate = formatting.format(date)
 
             //add this to database
-            database.child(session_id).child(formatteddate).child("timestamp").setValue(formatteddate).addOnSuccessListener {
-                Toast.makeText(this, "Succesfully saved!", Toast.LENGTH_SHORT).show()
-            }.addOnFailureListener{
-                Toast.makeText(this, "Failed!", Toast.LENGTH_SHORT).show()
-            }
+            database.child(session_id).child(formatteddate).child("timestamp").setValue(formatteddate)
 
             database.child(session_id).child(formatteddate).child("android-id").setValue(android_id)
 
@@ -372,22 +370,37 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     // button start and stop
     fun resumeReading(view: View) {
-        this.resume = true
+        if (this.resume == true)
+        {
+            Toast.makeText(this, "Data collection has already been started!", Toast.LENGTH_SHORT).show()
+        }
+        else if (this.resume == false)
+        {
+            this.resume = true
+            Toast.makeText(this, "Data collection has begun!", Toast.LENGTH_SHORT).show()
+        }
     }
 
     fun pauseReading(view: View) {
-        this.resume = false
+        if (this.resume == false)
+        {
+            Toast.makeText(this, "Data collection has already stopped!", Toast.LENGTH_SHORT).show()
+        }
+        else if (this.resume == true)
+        {
+            this.resume = false
+            Toast.makeText(this, "Data collection has stopped!", Toast.LENGTH_SHORT).show()
+        }
     }
 
     // LOCATION STUFF
-
     @SuppressLint("MissingPermission")
     private fun getLastLocation() {
         if(CheckPermission()){
             if(isLocationEnabled()){
 
                 fusedLocationProviderClient.lastLocation.addOnCompleteListener{task ->
-                    var location = task.result
+                    val location = task.result
                     if(location == null){
 
                         getNewLocation()
@@ -427,7 +440,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun isLocationEnabled() : Boolean{
-        var locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
@@ -460,7 +473,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(p0: LocationResult?){
-            var lastLocation = p0?.lastLocation
+            val lastLocation = p0?.lastLocation
 
             if (lastLocation != null) {
                 locationResult = lastLocation
