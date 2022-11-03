@@ -3,7 +3,8 @@ from firebase_admin import credentials
 from firebase_admin import db
 
 # Fetch the service account key JSON file contents
-cred = credentials.Certificate('raasta-c542d-firebase-adminsdk-5v3pa-b884299eed.json')
+# go to project settings -> service accounts -> python -> generate new private key. Download the json file and place it in the same folder as this py file. Copy the name of the file and paste below.
+cred = credentials.Certificate('')
 
 # Initialize the app with a service account, granting admin privileges
 firebase_admin.initialize_app(cred, {
