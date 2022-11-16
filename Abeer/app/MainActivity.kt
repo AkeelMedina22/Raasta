@@ -25,15 +25,24 @@ import java.text.SimpleDateFormat
 import java.util.*
 import android.provider.Settings
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.database.DatabaseErrorHandler
 import android.location.Location
 import android.location.LocationManager
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.widget.Button
 import androidx.core.location.LocationManagerCompat.isLocationEnabled
 import com.google.firebase.database.*
 import com.google.firebase.database.core.ValueEventRegistration
 import java.time.format.DateTimeFormatterBuilder
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.os.Build
+import androidx.core.os.postDelayed
+import kotlin.concurrent.scheduleAtFixedRate
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
 
@@ -75,11 +84,14 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var android_id : String = ""
     private var session_id : String = ""
 
+    private var checkSensor : Boolean = false
+    private var myList = mutableListOf<MutableList<String>>()
+
     // database initialization
     private lateinit var database: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        
+
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
         requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -122,20 +134,27 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
+        var sensor_label = ""
+        var accelerometer_x = "0.0"
+        var accelerometer_y = "0.0"
+        var accelerometer_z = "0.0"
 
+        var gyroscope_x = "0.0"
+        var gyroscope_y = "0.0"
+        var gyroscope_z = "0.0"
         // when start button is pressed, data will start getting collected
-        if (event != null && resume) {
-
+        if (event != null && resume && checkSensor) {
+            checkSensor = false
             getLastLocation()
+            //checkSensor = false
 
             val date = Date()
-            val formatting = SimpleDateFormat("yyyyMMddHHmmss")
+            val formatting = SimpleDateFormat("yyyyMMddHHmmss-SSS")
             val formatteddate = formatting.format(date)
 
             //add this to database
-            database.child(session_id).child(formatteddate).child("timestamp").setValue(formatteddate)
-
-            database.child(session_id).child(formatteddate).child("android-id").setValue(android_id)
+//            database.child(session_id).child(formatteddate).child("timestamp").setValue(formatteddate)
+//            database.child(session_id).child(formatteddate).child("android-id").setValue(android_id)
 
             val pothole_btn = findViewById<Button>(R.id.pothole)
             val speedbreaker_btn = findViewById<Button>(R.id.speedbreaker)
@@ -149,7 +168,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                     pothole_btn_click = pothole_btn_click + 1
                     if (pothole_btn_click == 1)
                     {
-                        database.child(session_id).child(formatteddate).child("label").setValue(pothole_l)
+                        sensor_label = pothole_l
+//                        database.child(session_id).child(formatteddate).child("label").setValue(pothole_l)
                         speedbreaker_btn.setEnabled(false)
                         traffic_btn.setEnabled(false)
                         bad_road_btn.setEnabled(false)
@@ -157,7 +177,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                     }
                     else
                     {
-                        database.child(session_id).child(formatteddate).child("label").setValue(label)
+                        sensor_label = label
+//                        database.child(session_id).child(formatteddate).child("label").setValue(label)
                         pothole_btn_click = 0
                         speedbreaker_btn.setEnabled(true)
                         traffic_btn.setEnabled(true)
@@ -174,7 +195,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                     speedbreaker_btn_click = speedbreaker_btn_click + 1
                     if (speedbreaker_btn_click == 1)
                     {
-                        database.child(session_id).child(formatteddate).child("label").setValue(speedbreaker_l)
+                        sensor_label = speedbreaker_l
+//                        database.child(session_id).child(formatteddate).child("label").setValue(speedbreaker_l)
                         pothole_btn.setEnabled(false)
                         traffic_btn.setEnabled(false)
                         bad_road_btn.setEnabled(false)
@@ -182,7 +204,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                     }
                     else
                     {
-                        database.child(session_id).child(formatteddate).child("label").setValue(label)
+                        sensor_label = label
+//                        database.child(session_id).child(formatteddate).child("label").setValue(label)
                         speedbreaker_btn_click = 0
                         pothole_btn.setEnabled(true)
                         traffic_btn.setEnabled(true)
@@ -199,7 +222,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                     traffic_btn_click = traffic_btn_click + 1
                     if (traffic_btn_click == 1)
                     {
-                        database.child(session_id).child(formatteddate).child("label").setValue(traffic_l)
+                        sensor_label = traffic_l
+//                        database.child(session_id).child(formatteddate).child("label").setValue(traffic_l)
                         pothole_btn.setEnabled(false)
                         speedbreaker_btn.setEnabled(false)
                         bad_road_btn.setEnabled(false)
@@ -207,7 +231,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                     }
                     else
                     {
-                        database.child(session_id).child(formatteddate).child("label").setValue(label)
+                        sensor_label = label
+//                        database.child(session_id).child(formatteddate).child("label").setValue(label)
                         traffic_btn_click = 0
                         pothole_btn.setEnabled(true)
                         speedbreaker_btn.setEnabled(true)
@@ -224,7 +249,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                     broad_btn_click = broad_btn_click + 1
                     if (broad_btn_click == 1)
                     {
-                        database.child(session_id).child(formatteddate).child("label").setValue(broad_l)
+                        sensor_label = broad_l
+//                        database.child(session_id).child(formatteddate).child("label").setValue(broad_l)
                         pothole_btn.setEnabled(false)
                         traffic_btn.setEnabled(false)
                         speedbreaker_btn.setEnabled(false)
@@ -232,7 +258,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                     }
                     else
                     {
-                        database.child(session_id).child(formatteddate).child("label").setValue(label)
+                        sensor_label = label
+//                        database.child(session_id).child(formatteddate).child("label").setValue(label)
                         broad_btn_click = 0
                         pothole_btn.setEnabled(true)
                         traffic_btn.setEnabled(true)
@@ -249,7 +276,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                     schange_btn_click = schange_btn_click + 1
                     if (schange_btn_click == 1)
                     {
-                        database.child(session_id).child(formatteddate).child("label").setValue(schange_l)
+                        sensor_label = schange_l
+//                        database.child(session_id).child(formatteddate).child("label").setValue(schange_l)
                         pothole_btn.setEnabled(false)
                         traffic_btn.setEnabled(false)
                         bad_road_btn.setEnabled(false)
@@ -257,7 +285,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                     }
                     else
                     {
-                        database.child(session_id).child(formatteddate).child("label").setValue(label)
+                        sensor_label = label
+//                        database.child(session_id).child(formatteddate).child("label").setValue(label)
                         schange_btn_click = 0
                         pothole_btn.setEnabled(true)
                         traffic_btn.setEnabled(true)
@@ -271,28 +300,34 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             {
                 if (pothole_btn_click == 1)
                 {
-                    database.child(session_id).child(formatteddate).child("label").setValue(pothole_l)
+                    sensor_label = pothole_l
+//                    database.child(session_id).child(formatteddate).child("label").setValue(pothole_l)
                 }
                 else if (traffic_btn_click == 1)
                 {
-                    database.child(session_id).child(formatteddate).child("label").setValue(traffic_l)
+                    sensor_label = traffic_l
+//                    database.child(session_id).child(formatteddate).child("label").setValue(traffic_l)
                 }
                 else if (speedbreaker_btn_click == 1)
                 {
-                    database.child(session_id).child(formatteddate).child("label").setValue(speedbreaker_l)
+                    sensor_label = speedbreaker_l
+//                    database.child(session_id).child(formatteddate).child("label").setValue(speedbreaker_l)
                 }
                 else if (schange_btn_click == 1)
                 {
-                    database.child(session_id).child(formatteddate).child("label").setValue(schange_l)
+                    sensor_label = schange_l
+//                    database.child(session_id).child(formatteddate).child("label").setValue(schange_l)
                 }
                 else if (broad_btn_click == 1)
                 {
-                    database.child(session_id).child(formatteddate).child("label").setValue(broad_l)
+                    sensor_label = broad_l
+//                    database.child(session_id).child(formatteddate).child("label").setValue(broad_l)
                 }
             }
             else
             {
-                database.child(session_id).child(formatteddate).child("label").setValue(label)
+                sensor_label = label
+//                database.child(session_id).child(formatteddate).child("label").setValue(label)
             }
 
             try{
@@ -300,8 +335,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 longitude = locationResult.longitude
                 findViewById<TextView>(R.id.longt).text = longitude.toString()
                 findViewById<TextView>(R.id.lat).text = latitude.toString()
-                database.child(session_id).child(formatteddate).child("latitude").setValue(latitude.toString())
-                database.child(session_id).child(formatteddate).child("longitude").setValue(longitude.toString())
+//                database.child(session_id).child(formatteddate).child("latitude").setValue(latitude.toString())
+//                database.child(session_id).child(formatteddate).child("longitude").setValue(longitude.toString())
             }
             catch(e: Exception){
                 println("failed")
@@ -326,9 +361,13 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 val temp23:Double = String.format("%.1f", temp22).toDouble()
                 findViewById<TextView>(R.id.acc_Z).text = temp23.toString()
 
-                database.child(session_id).child(formatteddate).child("accelerometer-x").setValue(temp03.toString())
-                database.child(session_id).child(formatteddate).child("accelerometer-y").setValue(temp13.toString())
-                database.child(session_id).child(formatteddate).child("accelerometer-z").setValue(temp23.toString())
+//                database.child(session_id).child(formatteddate).child("accelerometer-x").setValue(temp03.toString())
+//                database.child(session_id).child(formatteddate).child("accelerometer-y").setValue(temp13.toString())
+//                database.child(session_id).child(formatteddate).child("accelerometer-z").setValue(temp23.toString())
+
+                accelerometer_x = temp03.toString()
+                accelerometer_y = temp13.toString()
+                accelerometer_z = temp23.toString()
             }
 
             if (event.sensor.type == Sensor.TYPE_GYROSCOPE) {
@@ -350,17 +389,66 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 val temp23:Double = String.format("%.1f", temp22).toDouble()
                 findViewById<TextView>(R.id.gyro_z).text = temp23.toString()
 
-                database.child(session_id).child(formatteddate).child("gyroscope-x").setValue(temp03.toString())
-                database.child(session_id).child(formatteddate).child("gyroscope-y").setValue(temp13.toString())
-                database.child(session_id).child(formatteddate).child("gyroscope-z").setValue(temp23.toString())
+//                database.child(session_id).child(formatteddate).child("gyroscope-x").setValue(temp03.toString())
+//                database.child(session_id).child(formatteddate).child("gyroscope-y").setValue(temp13.toString())
+//                database.child(session_id).child(formatteddate).child("gyroscope-z").setValue(temp23.toString())
+
+                gyroscope_x = temp03.toString()
+                gyroscope_y = temp13.toString()
+                gyroscope_z = temp23.toString()
             }
+
+            // add in list
+            myList.add(mutableListOf(formatteddate, android_id, sensor_label, latitude.toString(), longitude.toString(), accelerometer_x, accelerometer_y, accelerometer_z, gyroscope_x, gyroscope_y, gyroscope_z))
+            println(myList)
+
         }
     }
 
     override fun onResume() {
         super.onResume()
-        mSensorManager.registerListener(this, mAccelerometer, 500000, 500000)
-        mSensorManager.registerListener(this, mGyroscope, 500000, 500000)
+        // sampling period is in MICROSECONDS
+        mSensorManager.registerListener(this, mAccelerometer, 20000, 1000000)
+        mSensorManager.registerListener(this, mGyroscope, 20000, 1000000)
+
+        // get sensor values after every second
+        val timer_sensor = Timer()
+        timer_sensor.scheduleAtFixedRate(object: TimerTask()
+        {
+            override fun run()
+            {
+                checkSensor = true
+            }
+        }, 1000, 1000)
+
+        // check for internet connection after every 5 seconds
+        val connection_timer = Timer()
+        connection_timer.scheduleAtFixedRate(object: TimerTask()
+        {
+            override fun run()
+            {
+                if (!resume && myList.size > 2 && checkforInternet(this@MainActivity))
+                {
+                    for (x in myList.drop(2))
+                    {
+                        // add in database
+                        database.child(session_id).child(x[0]).child("timestamp").setValue(x[0])
+                        database.child(session_id).child(x[0]).child("android-id").setValue(x[1])
+                        database.child(session_id).child(x[0]).child("label").setValue(x[2])
+                        database.child(session_id).child(x[0]).child("latitude").setValue(x[3])
+                        database.child(session_id).child(x[0]).child("longitude").setValue(x[4])
+                        database.child(session_id).child(x[0]).child("accelerometer-x").setValue(x[5])
+                        database.child(session_id).child(x[0]).child("accelerometer-y").setValue(x[6])
+                        database.child(session_id).child(x[0]).child("accelerometer-z").setValue(x[7])
+                        database.child(session_id).child(x[0]).child("gyroscope-x").setValue(x[8])
+                        database.child(session_id).child(x[0]).child("gyroscope-y").setValue(x[9])
+                        database.child(session_id).child(x[0]).child("gyroscope-z").setValue(x[10])
+
+                        myList.remove(x)
+                    }
+                }
+            }
+        },5000, 5000)
     }
 
     override fun onPause() {
@@ -378,6 +466,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         {
             this.resume = true
             Toast.makeText(this, "Data collection has begun!", Toast.LENGTH_SHORT).show()
+            //startService(Intent(this, MyService::class.java))
         }
     }
 
@@ -390,6 +479,46 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         {
             this.resume = false
             Toast.makeText(this, "Data collection has stopped!", Toast.LENGTH_SHORT).show()
+            //stopService(Intent(this, MyService::class.java))
+        }
+    }
+
+    private fun checkforInternet(context : Context) : Boolean
+    {
+        // register activity with the connectivity manager service
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        // if the android version is equal to M
+        // or greater we need to use the
+        // NetworkCapabilities to check what type of
+        // network has the internet connection
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+            // Returns a Network object corresponding to
+            // the currently active default data network.
+            val network = connectivityManager.activeNetwork ?: return false
+
+            // Representation of the capabilities of an active network.
+            val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
+
+            return when {
+                // Indicates this network uses a Wi-Fi transport,
+                // or WiFi has network connectivity
+                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+
+                // Indicates this network uses a Cellular transport. or
+                // Cellular has network connectivity
+                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+
+                // else return false
+                else -> false
+            }
+        }
+        else {
+            // if the android version is below M
+            @Suppress("DEPRECATION") val networkInfo = connectivityManager.activeNetworkInfo ?: return false
+            @Suppress("DEPRECATION")
+            return networkInfo.isConnected
         }
     }
 
