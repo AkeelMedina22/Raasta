@@ -112,6 +112,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         android_id = Settings.Secure.getString(this.contentResolver, Settings.Secure.ANDROID_ID)
 
         session_id = UUID.randomUUID().toString()
+        getLastLocation()
 
         //check if session_id exists in the database
 //        database.addValueEventListener(object : ValueEventListener {
@@ -408,8 +409,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     override fun onResume() {
         super.onResume()
         // sampling period is in MICROSECONDS
-        mSensorManager.registerListener(this, mAccelerometer, 20000, 1000000)
-        mSensorManager.registerListener(this, mGyroscope, 20000, 1000000)
+        mSensorManager.registerListener(this, mAccelerometer, 20000, 250000)
+        mSensorManager.registerListener(this, mGyroscope, 20000, 250000)
 
         // get sensor values after every second
         val timer_sensor = Timer()
@@ -419,7 +420,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             {
                 checkSensor = true
             }
-        }, 1000, 1000)
+        }, 250, 250)
 
         // check for internet connection after every 5 seconds
         val connection_timer = Timer()
