@@ -1,8 +1,4 @@
 package com.example.workk
-
-// To-do:
-// Labelling data, changing database structure, changing code to match it, requiring wifi connection? what happens with no wifi.
-
 import android.Manifest
 import android.content.Context
 import android.content.pm.ActivityInfo
@@ -20,29 +16,17 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.*
-import java.security.AccessController.getContext
 import java.text.SimpleDateFormat
 import java.util.*
 import android.provider.Settings
 import android.annotation.SuppressLint
-import android.content.Intent
-import android.database.DatabaseErrorHandler
 import android.location.Location
 import android.location.LocationManager
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
-import android.widget.Button
-import androidx.core.location.LocationManagerCompat.isLocationEnabled
-import com.google.firebase.database.*
-import com.google.firebase.database.core.ValueEventRegistration
-import java.time.format.DateTimeFormatterBuilder
 import android.net.ConnectivityManager
-import android.net.Network
 import android.net.NetworkCapabilities
 import android.os.Build
-import androidx.core.os.postDelayed
-import kotlin.concurrent.scheduleAtFixedRate
+import android.widget.Button
+import com.google.firebase.database.*
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
 
@@ -84,7 +68,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var android_id : String = ""
     private var session_id : String = ""
 
-    private var checkSensor : Boolean = false
+    var count = 0
     private var myList = mutableListOf<MutableList<String>>()
 
     // database initialization
@@ -106,13 +90,14 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         mSensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         mGyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
+        mSensorManager.registerListener(this, mAccelerometer, 500000, 500000)
+        mSensorManager.registerListener(this, mGyroscope, 500000, 500000)
 
         database = FirebaseDatabase.getInstance().getReference("sensor-data")
 
         android_id = Settings.Secure.getString(this.contentResolver, Settings.Secure.ANDROID_ID)
 
         session_id = UUID.randomUUID().toString()
-        getLastLocation()
 
         //check if session_id exists in the database
 //        database.addValueEventListener(object : ValueEventListener {
@@ -135,6 +120,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
+        count += 1
+        println(count)
+
+        getLastLocation()
+
         var sensor_label = ""
         var accelerometer_x = "0.0"
         var accelerometer_y = "0.0"
@@ -143,11 +133,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         var gyroscope_x = "0.0"
         var gyroscope_y = "0.0"
         var gyroscope_z = "0.0"
+
         // when start button is pressed, data will start getting collected
-        if (event != null && resume && checkSensor) {
-            checkSensor = false
+        if (event != null && resume) {
             getLastLocation()
-            //checkSensor = false
 
             val date = Date()
             val formatting = SimpleDateFormat("yyyyMMddHHmmss-SSS")
@@ -331,6 +320,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 //                database.child(session_id).child(formatteddate).child("label").setValue(label)
             }
 
+
             try{
                 latitude = locationResult.latitude
                 longitude = locationResult.longitude
@@ -343,84 +333,61 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 println("failed")
             }
 
+
             if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
                 val accX = event.values[0]
                 val temp01:Double = String.format("%.3f", accX).toDouble()
-                val temp02:Double = String.format("%.2f", temp01).toDouble()
-                val temp03:Double = String.format("%.1f", temp02).toDouble()
-                findViewById<TextView>(R.id.acc_X).text = temp03.toString()
+                findViewById<TextView>(R.id.acc_X).text = temp01.toString()
 
                 val accY = event.values[1]
                 val temp11:Double = String.format("%.3f", accY).toDouble()
-                val temp12:Double = String.format("%.2f", temp11).toDouble()
-                val temp13:Double = String.format("%.1f", temp12).toDouble()
-                findViewById<TextView>(R.id.acc_Y).text = temp13.toString()
+                findViewById<TextView>(R.id.acc_Y).text = temp11.toString()
 
                 val accZ = event.values[2]
                 val temp21:Double = String.format("%.3f", accZ).toDouble()
-                val temp22:Double = String.format("%.2f", temp21).toDouble()
-                val temp23:Double = String.format("%.1f", temp22).toDouble()
-                findViewById<TextView>(R.id.acc_Z).text = temp23.toString()
+                findViewById<TextView>(R.id.acc_Z).text = temp21.toString()
+//
+//                database.child(session_id).child(formatteddate).child("accelerometer-x").setValue(temp01.toString())
+//                database.child(session_id).child(formatteddate).child("accelerometer-y").setValue(temp11.toString())
+//                database.child(session_id).child(formatteddate).child("accelerometer-z").setValue(temp21.toString())
 
-//                database.child(session_id).child(formatteddate).child("accelerometer-x").setValue(temp03.toString())
-//                database.child(session_id).child(formatteddate).child("accelerometer-y").setValue(temp13.toString())
-//                database.child(session_id).child(formatteddate).child("accelerometer-z").setValue(temp23.toString())
-
-                accelerometer_x = temp03.toString()
-                accelerometer_y = temp13.toString()
-                accelerometer_z = temp23.toString()
+                accelerometer_x = temp01.toString()
+                accelerometer_y = temp11.toString()
+                accelerometer_z = temp21.toString()
             }
 
             if (event.sensor.type == Sensor.TYPE_GYROSCOPE) {
                 val accX = event.values[0]
                 val temp01:Double = String.format("%.3f", accX).toDouble()
-                val temp02:Double = String.format("%.2f", temp01).toDouble()
-                val temp03:Double = String.format("%.1f", temp02).toDouble()
-                findViewById<TextView>(R.id.gyro_x).text = temp03.toString()
+                findViewById<TextView>(R.id.gyro_x).text = temp01.toString()
 
                 val accY = event.values[1]
                 val temp11:Double = String.format("%.3f", accY).toDouble()
-                val temp12:Double = String.format("%.2f", temp11).toDouble()
-                val temp13:Double = String.format("%.1f", temp12).toDouble()
-                findViewById<TextView>(R.id.gyro_y).text = temp13.toString()
+                findViewById<TextView>(R.id.gyro_y).text = temp11.toString()
 
                 val accZ = event.values[2]
                 val temp21:Double = String.format("%.3f", accZ).toDouble()
-                val temp22:Double = String.format("%.2f", temp21).toDouble()
-                val temp23:Double = String.format("%.1f", temp22).toDouble()
-                findViewById<TextView>(R.id.gyro_z).text = temp23.toString()
+                findViewById<TextView>(R.id.gyro_z).text = temp21.toString()
 
-//                database.child(session_id).child(formatteddate).child("gyroscope-x").setValue(temp03.toString())
-//                database.child(session_id).child(formatteddate).child("gyroscope-y").setValue(temp13.toString())
-//                database.child(session_id).child(formatteddate).child("gyroscope-z").setValue(temp23.toString())
+//                database.child(session_id).child(formatteddate).child("gyroscope-x").setValue(temp01.toString())
+//                database.child(session_id).child(formatteddate).child("gyroscope-y").setValue(temp11.toString())
+//                database.child(session_id).child(formatteddate).child("gyroscope-z").setValue(temp21.toString())
 
-                gyroscope_x = temp03.toString()
-                gyroscope_y = temp13.toString()
-                gyroscope_z = temp23.toString()
+                gyroscope_x = temp01.toString()
+                gyroscope_y = temp11.toString()
+                gyroscope_z = temp21.toString()
             }
 
-            // add in list
             myList.add(mutableListOf(formatteddate, android_id, sensor_label, latitude.toString(), longitude.toString(), accelerometer_x, accelerometer_y, accelerometer_z, gyroscope_x, gyroscope_y, gyroscope_z))
             println(myList)
-
         }
+
     }
 
     override fun onResume() {
         super.onResume()
-        // sampling period is in MICROSECONDS
-        mSensorManager.registerListener(this, mAccelerometer, 20000, 250000)
-        mSensorManager.registerListener(this, mGyroscope, 20000, 250000)
-
-        // get sensor values after every second
-        val timer_sensor = Timer()
-        timer_sensor.scheduleAtFixedRate(object: TimerTask()
-        {
-            override fun run()
-            {
-                checkSensor = true
-            }
-        }, 250, 250)
+        mSensorManager.registerListener(this, mAccelerometer, 20000, 500000)
+        mSensorManager.registerListener(this, mGyroscope, 20000, 500000)
 
         // check for internet connection after every 5 seconds
         val connection_timer = Timer()
@@ -467,7 +434,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         {
             this.resume = true
             Toast.makeText(this, "Data collection has begun!", Toast.LENGTH_SHORT).show()
-            //startService(Intent(this, MyService::class.java))
         }
     }
 
@@ -480,7 +446,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         {
             this.resume = false
             Toast.makeText(this, "Data collection has stopped!", Toast.LENGTH_SHORT).show()
-            //stopService(Intent(this, MyService::class.java))
         }
     }
 
@@ -530,13 +495,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             if(isLocationEnabled()){
 
                 fusedLocationProviderClient.lastLocation.addOnCompleteListener{task ->
-                    val location = task.result
-                    if(location == null){
-
                         getNewLocation()
-                    }else {
-                        locationResult = location
-                    }
                 }
 
             }else{
@@ -592,9 +551,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private fun getNewLocation(){
         locationRequest = LocationRequest()
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        locationRequest.interval = 0
-        locationRequest.fastestInterval = 0
-        locationRequest.numUpdates = 2
+        locationRequest.interval = UPDATE_INTERVAL_IN_MILLISECONDS
+        locationRequest.fastestInterval = FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS
         fusedLocationProviderClient!!.requestLocationUpdates(
             locationRequest, locationCallback, null
         )
