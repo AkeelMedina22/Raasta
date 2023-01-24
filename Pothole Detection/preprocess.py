@@ -68,32 +68,32 @@ for key in sorted(session_data):
 latitude = list(filter(lambda num: num != 0, latitude))
 longitude = list(filter(lambda num: num != 0, longitude))
 
-fs = 10  # Sampling frequency
-# Generate the time vector properly
-t = np.arange(len(accelerometer_x)) / fs
-plt.plot(t, accelerometer_z, label="initial")
 
-fc = 2.5  # Cut-off frequency of the filter
-w = fc / (fs / 2) # Normalize the frequency
-b, a = signal.butter(11, w, 'lowpass', analog=False)
-output = signal.filtfilt(b, a, accelerometer_z)
-plt.plot(t, output, label='filtered')
+def filter(data, fs=10, fc=2.5, order=11):
+    # fc = frequency cutoff
+    w = fc / (fs / 2) # Normalize the frequency
+    b, a = signal.butter(order, w, 'lowpass', analog=False)
+    return signal.filtfilt(b, a, data)
+
+def resample(data, old_fs, new_fs=2):
+    t = np.arange(len(data)) / old_fs
+    spl = splrep(t, data)
+    t1 = np.arange((len(data))*new_fs) / (fs*new_fs)
+    return splev(t1, spl)
+
+
+fs = 10  # Sampling frequency
+new_accz = filter(accelerometer_z)
+t = np.arange(len(accelerometer_x)) / fs
+
+plt.plot(t, accelerometer_z, label="initial")
+plt.plot(t, new_accz, label='filtered')
 
 plt.legend()
 plt.savefig("Filtered")
 plt.show()
 
-spl = splrep(t, accelerometer_z)
-t1 = np.arange((len(accelerometer_x))*2) / (fs*2)
-acz1 = splev(t1, spl)
-
-print(accelerometer_z[0:10])
-print(acz1[0:10])
-
-plt.plot(t1, acz1)
-plt.savefig("Interpolated")
-plt.show()
-
+# generate new sample points on new frequency to plot resampled data
 
 
 
