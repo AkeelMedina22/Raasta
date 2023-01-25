@@ -1,5 +1,4 @@
 import tensorflow as tf
-from tensorflow.keras.preprocessing.sequence import pad_sequences
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -12,6 +11,7 @@ import numpy as np
 import itertools
 from firebase_admin import credentials
 from firebase_admin import db
+include = ['Pothole', 'Bad Road', 'Speedbreaker',]
 # import scienceplots
 
 # plt.style.use(['science', 'ieee'])
@@ -28,8 +28,8 @@ def train_test_split(data, longitude, latitude):
 
     window = []
     window_loc = []
-    window_size = 50
-    stride = 25
+    window_size = 60
+    stride = 30
 
     assert len(data) > 2*window_size + 1
 
@@ -38,7 +38,7 @@ def train_test_split(data, longitude, latitude):
         flag = 0
         _ = []
         for j in temp:
-            if j[1] == 'Pothole':
+            if j[1] in include:
                 flag = 1
             _.append(j[0])
         if flag:
@@ -49,7 +49,7 @@ def train_test_split(data, longitude, latitude):
 
     data = np.array(window, dtype=object)
 
-    train_ratio = 0.95
+    train_ratio = 0.5
     sequence_len = data.shape[0]
 
     train_data = data[0:int(sequence_len*train_ratio)]
@@ -91,7 +91,7 @@ training_labels_final = np.array(training_labels).reshape(-1, 1)
 testing_labels_final = np.array(testing_labels).reshape(-1, 1)
 
 # Plot Utility
-
+# print(testing_sequences_final)
 
 def plot_graphs(history, string):
     plt.figure(figsize=(7, 3))
@@ -108,8 +108,46 @@ def plot_graphs(history, string):
 # print(testing_sequences_final.shape)
 # print(testing_labels_final.shape)
 
-
 # Model Definition with LSTM
+# model_lstm = tf.keras.Sequential([
+#     tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64, input_shape=(
+#         training_sequences_final.shape[1], training_sequences_final.shape[2]), activation='tanh', return_sequences=True)),
+#     tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(
+#         64, activation='relu', return_sequences=True)),
+#     tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64, activation='relu')),
+#     tf.keras.layers.Dense(10, activation='relu'),
+#     tf.keras.layers.Dense(1, activation='sigmoid')
+# ])
+
+# # Model Definition with LSTM
+model_lstm = tf.keras.Sequential([
+    tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64, input_shape=(
+        training_sequences_final.shape[1], training_sequences_final.shape[2]), activation='tanh', return_sequences=True)),
+    # tf.keras.layers.BatchNormalization(),
+    # tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(
+    #     128, activation='tanh', return_sequences=True)),
+    # tf.keras.layers.Dropout(0.2),
+    # tf.keras.layers.BatchNormalization(),
+    # tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(
+    #     64, activation='tanh', return_sequences=True)),
+    # tf.keras.layers.BatchNormalization(),
+    tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(
+        64, activation='relu', return_sequences=True)),
+    # tf.keras.layers.Dropout(0.2),
+    # tf.keras.layers.BatchNormalization(),
+    # tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(
+    #     64, activation='tanh', return_sequences=True)),
+    # tf.keras.layers.BatchNormalization(),
+    # tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(
+    #     64, activation='tanh', return_sequences=True)),
+    # tf.keras.layers.BatchNormalization(),
+    tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64, activation='relu')),
+    # tf.keras.layers.Dense(40, activation='relu'),
+    # tf.keras.layers.Dense(30, activation='relu'),
+    # tf.keras.layers.Dense(20, activation='relu'),
+    tf.keras.layers.Dense(10, activation='relu'),
+    tf.keras.layers.Dense(1, activation='sigmoid')
+])
 # model_lstm = tf.keras.Sequential([
 #     tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(256, input_shape=(
 #         training_sequences_final.shape[1], training_sequences_final.shape[2]), activation='tanh', return_sequences=True)),
@@ -125,54 +163,27 @@ def plot_graphs(history, string):
 #         64, activation='tanh', return_sequences=True)),
 #     tf.keras.layers.Dropout(0.2),
 #     tf.keras.layers.BatchNormalization(),
-#     # tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(
-#     #     64, activation='tanh', return_sequences=True)),
-#     # tf.keras.layers.BatchNormalization(),
-#     # tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(
-#     #     64, activation='tanh', return_sequences=True)),
-#     # tf.keras.layers.BatchNormalization(),
+#     tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(
+#         64, activation='tanh', return_sequences=True)),
+#     tf.keras.layers.BatchNormalization(),
+#     tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(
+#         64, activation='tanh', return_sequences=True)),
+#     tf.keras.layers.BatchNormalization(),
 #     tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64, activation='tanh')),
-#     # tf.keras.layers.Dense(40, activation='relu'),
-#     # tf.keras.layers.Dense(30, activation='relu'),
-#     # tf.keras.layers.Dense(20, activation='relu'),
-#     tf.keras.layers.Dense(10, activation='relu'),
-#     tf.keras.layers.Dense(1, activation='sigmoid')
+#     tf.keras.layers.Dense(40, activation='linear'),
+#     tf.keras.layers.Dense(30, activation='linear'),
+#     tf.keras.layers.Dense(20, activation='linear'),
+#     tf.keras.layers.Dense(10, activation='linear'),
+#     tf.keras.layers.Dense(1, activation='linear')
 # ])
-model_lstm = tf.keras.Sequential([
-    tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(256, input_shape=(
-        training_sequences_final.shape[1], training_sequences_final.shape[2]), activation='tanh', return_sequences=True)),
-    tf.keras.layers.BatchNormalization(),
-    tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(
-        128, activation='tanh', return_sequences=True)),
-    tf.keras.layers.Dropout(0.2),
-    tf.keras.layers.BatchNormalization(),
-    tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(
-        64, activation='tanh', return_sequences=True)),
-    tf.keras.layers.BatchNormalization(),
-    tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(
-        64, activation='tanh', return_sequences=True)),
-    tf.keras.layers.Dropout(0.2),
-    tf.keras.layers.BatchNormalization(),
-    tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(
-        64, activation='tanh', return_sequences=True)),
-    tf.keras.layers.BatchNormalization(),
-    tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(
-        64, activation='tanh', return_sequences=True)),
-    tf.keras.layers.BatchNormalization(),
-    tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64, activation='tanh')),
-    tf.keras.layers.Dense(40, activation='linear'),
-    tf.keras.layers.Dense(30, activation='linear'),
-    tf.keras.layers.Dense(20, activation='linear'),
-    tf.keras.layers.Dense(10, activation='linear'),
-    tf.keras.layers.Dense(1, activation='linear')
-])
+
 # Set the training parameters
 model_lstm.compile(loss='binary_crossentropy',
                    optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
                    metrics=['accuracy'])
 
 NUM_EPOCHS = 10
-BATCH_SIZE = 200
+BATCH_SIZE = 4
 
 # Train the model
 history_lstm = model_lstm.fit(x=training_sequences_final, y=training_labels_final,
@@ -181,12 +192,12 @@ history_lstm = model_lstm.fit(x=training_sequences_final, y=training_labels_fina
                                   testing_sequences_final, testing_labels_final),
                               batch_size=BATCH_SIZE)
 # Print the model summary
-# model_lstm.summary()
+model_lstm.summary()
 
-plot_graphs(history_lstm, 'accuracy')
-plot_graphs(history_lstm, 'loss')
+# plot_graphs(history_lstm, 'accuracy')
+# plot_graphs(history_lstm, 'loss')
 
-# predict = np.where(model_lstm.predict(training_sequences_final) > 0.5, 1, 0)
+predict = np.where(model_lstm.predict(training_sequences_final) > 0.5, 1, 0)
 # plt.plot(predict, label="predict", linewidth=0.7, alpha=1.0)
 # plt.plot([i for i in range(testing_labels_final.shape[0])], [1 if i == 'Pothole' else 0 for i in testing_labels_final], linewidth=0.5, label="true", alpha=0.5)
 # plt.xlabel("Timestep")
@@ -194,12 +205,12 @@ plot_graphs(history_lstm, 'loss')
 # plt.legend()
 # plt.show()
 
-# pothole_locations = set()
-# for i in range(len(predict)):
-#     if predict[i] == 1:
-#         pothole_locations.add(tuple(location[i]))
+pothole_locations = set()
+for i in range(len(predict)):
+    if predict[i] == 1:
+        pothole_locations.add(tuple(location[i]))
 
-
+print(pothole_locations)
 # ref = db.reference("/pothole-locations/")
 # session_data = list(ref.get().values())
 # # print(session_data)

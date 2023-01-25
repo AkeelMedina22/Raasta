@@ -18,7 +18,7 @@ GOOGLE_APPLICATION_CREDENTIALS="raasta-c542d-firebase-adminsdk-5v3pa-94bf94e3fb.
 cred_obj = credentials.Certificate(GOOGLE_APPLICATION_CREDENTIALS)
 default_app = firebase_admin.initialize_app(cred_obj, {'databaseURL':"https://raasta-c542d-default-rtdb.asia-southeast1.firebasedatabase.app/"})
 
-ref = db.reference("/sensor-data/5650eb3a-9dc4-4925-917a-be72f49e3f37/")
+ref = db.reference("/sensor-data/0f652a22-2694-41ff-98c4-d9eafaafda03/")
 session_data = ref.get()
 
 accelerometer_x = []
@@ -69,7 +69,7 @@ latitude = list(filter(lambda num: num != 0, latitude))
 longitude = list(filter(lambda num: num != 0, longitude))
 
 
-def filter(data, fs=10, fc=2.5, order=11):
+def filter(data, fs=10, fc=2, order=11):
     # fc = frequency cutoff
     w = fc / (fs / 2) # Normalize the frequency
     b, a = signal.butter(order, w, 'lowpass', analog=False)

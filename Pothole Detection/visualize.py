@@ -11,7 +11,7 @@ GOOGLE_APPLICATION_CREDENTIALS="raasta-c542d-firebase-adminsdk-5v3pa-94bf94e3fb.
 cred_obj = credentials.Certificate(GOOGLE_APPLICATION_CREDENTIALS)
 default_app = firebase_admin.initialize_app(cred_obj, {'databaseURL':"https://raasta-c542d-default-rtdb.asia-southeast1.firebasedatabase.app/"})
 
-ref = db.reference("/sensor-data/5650eb3a-9dc4-4925-917a-be72f49e3f37/")
+ref = db.reference("/sensor-data/0f652a22-2694-41ff-98c4-d9eafaafda03/")
 session_data = ref.get()
 
 accelerometer_data = []
@@ -21,12 +21,13 @@ latitude = []
 longitude = []
 
 colors = []
+include = ['Pothole', 'Bad Road', 'Speedbreaker']
 color_map = {0: 'darkslategray', 1: 'goldenrod'}
 
 for key in sorted(session_data):
 
     try:
-        if session_data[key]['label'] == 'Pothole' or session_data[key]['label'] == 'Bad road' or session_data[key]['label'] == 'Speedbreaker':
+        if session_data[key]['label'] in include:
             colors.append(0)
         else:
             colors.append(1)

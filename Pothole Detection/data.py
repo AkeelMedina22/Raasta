@@ -5,6 +5,13 @@ import numpy as np
 import itertools
 from firebase_admin import credentials
 from firebase_admin import db
+from scipy import signal
+
+def filter(data, fs=10, fc=2.5, order=11):
+    # fc = frequency cutoff
+    w = fc / (fs / 2) # Normalize the frequency
+    b, a = signal.butter(order, w, 'lowpass', analog=False)
+    return signal.filtfilt(b, a, data)
 
 def get_data():
 
@@ -84,5 +91,12 @@ def get_data():
 
     # latitude = list(filter(lambda num: num != 0, latitude))
     # longitude = list(filter(lambda num: num != 0, longitude))
+    
+    accelerometer_x = filter(accelerometer_x)
+    accelerometer_y = filter(accelerometer_y)
+    accelerometer_z = filter(accelerometer_z)
+    gyroscope_x = filter(gyroscope_x)
+    gyroscope_y = filter(gyroscope_y)
+    gyroscope_z = filter(gyroscope_z)
 
     return [[[a,b,c,d,e,f],label] for a,b,c,d,e,f,label in zip(accelerometer_x, accelerometer_y, accelerometer_z, gyroscope_x, gyroscope_y, gyroscope_z, labels)], longitude, latitude
