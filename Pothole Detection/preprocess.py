@@ -78,17 +78,21 @@ def filter(data, fs=10, fc=2, order=11):
 def resample(data, old_fs, new_fs=2):
     t = np.arange(len(data)) / old_fs
     spl = splrep(t, data)
-    t1 = np.arange((len(data))*new_fs) / (fs*new_fs)
+    t1 = np.arange((len(data))*new_fs) / (old_fs*new_fs)
     return splev(t1, spl)
 
 
-fs = 10  # Sampling frequency
-new_accz = filter(accelerometer_z)
-t = np.arange(len(accelerometer_x)) / fs
+# fs = 10  # Sampling frequency
+# new_accz = filter(accelerometer_z)
+# t = np.arange(len(accelerometer_x)) / fs
+fs = 10
+new_fs = 50
+new_accz = resample(accelerometer_z, fs, new_fs)
+t1 = np.arange(len(accelerometer_x)*new_fs) 
 
-plt.plot(t, accelerometer_z, label="initial")
-plt.plot(t, new_accz, label='filtered')
-
+# plt.plot(t, accelerometer_z, label="initial")
+# plt.plot(t, new_accz, label='filtered')
+plt.plot(t1, new_accz, label='filtered')
 plt.legend()
 plt.savefig("Filtered")
 plt.show()

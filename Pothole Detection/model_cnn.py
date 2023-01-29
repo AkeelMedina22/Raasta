@@ -24,9 +24,18 @@ from keras.layers import Dropout
 from keras.layers.convolutional import Conv1D
 from keras.layers.convolutional import MaxPooling1D
 from keras.utils import to_categorical
+from scipy import signal
+from scipy.interpolate import splev, splrep
+import random
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 include = ['Pothole', 'Bad Road', 'Speedbreaker',]
+
+def resample(data, old_fs, new_fs=2):
+    t = np.arange(len(data)) / old_fs
+    spl = splrep(t, data)
+    t1 = np.arange((len(data))*new_fs) / (old_fs*new_fs)
+    return splev(t1, spl)
 
 def train_test_split(data, longitude, latitude):
 
@@ -45,6 +54,32 @@ def train_test_split(data, longitude, latitude):
         else:
             window.append([without_labels, 'Not Pothole'])
         window_loc.append([latitude[i], longitude[i]])
+
+    def augment(window):
+        pothole_count = 0
+        normal_count = 0
+        for i in window:
+            if i[1] == "Pothole":
+                pothole_count+=1
+            else:
+                normal_count+=1
+
+        for i in range(normal_count-pothole_count):
+            index = int(np.random.random()*pothole_count)
+            temp = window[index][0]
+            new = []
+            new_fs = int(np.random.uniform(10, 20))
+            for j in range(6):
+                _ = resample(temp[j], 10, new_fs)
+                new.append(resample(_, new_fs, 10/new_fs))
+
+            new = [[new[0][k],new[1][k],new[2][k],new[3][k],new[4][k],new[5][k]] for k in range(len(new[0]))]
+            window.append([new, 'Pothole'])
+
+        return window
+
+    window = augment(window)
+    random.shuffle(window)
 
     data = np.array(window, dtype=object)
 
@@ -89,18 +124,18 @@ X_test = np.array(testing_sequences)
 Y_train = np.array(training_labels).reshape(-1, 1)
 Y_test = np.array(testing_labels).reshape(-1, 1)
 
-print(X_train.shape[1], X_train.shape[2], Y_train.shape[1])
+# print(X_train.shape[1], X_train.shape[2], Y_train.shape[1])
 n_timesteps, n_features, n_outputs = X_train.shape[1], X_train.shape[2], Y_train.shape[1]
 
 
 # fit and evaluate a model
 def evaluate_model(X_train, Y_train, X_test, Y_test):
-    verbose, epochs, batch_size = 0, 100, 16
+    verbose, epochs, batch_size = 0, 10, 8
     n_timesteps, n_features, n_outputs = X_train.shape[1], X_train.shape[2], Y_train.shape[1]
     model = Sequential()
     model.add(Conv1D(filters=128, kernel_size=3, activation='relu', input_shape=(n_timesteps,n_features)))
     model.add(Conv1D(filters=64, kernel_size=5, activation='relu'))
-    model.add(Conv1D(filters=32, kernel_size=1, activation='relu'))
+    model.add(Conv1D(filters=32, kernel_size=3, activation='relu'))
     model.add(MaxPooling1D(pool_size=2))
     model.add(Flatten())
     model.add(Dense(100, activation='relu'))
@@ -121,21 +156,21 @@ def evaluate_model(X_train, Y_train, X_test, Y_test):
     return accuracy
 
 # # # summarize scores
-# def summarize_results(scores):
-#     print(scores)
-#     m, s = np.mean(scores), np.std(scores)
-#     print('Accuracy: %.3f%% (+/-%.3f)' % (m, s))
+def summarize_results(scores):
+    print(scores)
+    m, s = np.mean(scores), np.std(scores)
+    print('Accuracy: %.3f%% (+/-%.3f)' % (m, s))
 
 
 # repeat experiment
 scores = list()
-# repeats = 3
-# for r in range(repeats):
-score = evaluate_model(X_train, Y_train, X_test, Y_test)
-score = score * 100.0
-print('>#%d: %.3f' % (1, score))
-    # scores.append(score)
-    # # summarize results
-    # summarize_results(scores)
+repeats = 5
+for r in range(repeats):
+    score = evaluate_model(X_train, Y_train, X_test, Y_test)
+    score = score * 100.0
+    print('>#%d: %.3f' % (1, score))
+    scores.append(score)
+    # summarize results
+    summarize_results(scores)
 
 
