@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "905319379496",
+    "firebase_url": "https://test-raasta-default-rtdb.firebaseio.com",
+    "project_id": "test-raasta",
+    "storage_bucket": "test-raasta.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:905319379496:android:ef1c8498c58807d0f67b1d",
+        "android_client_info": {
+          "package_name": "com.example.application"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "905319379496-e8t9pqphng0d3ec3e2ci6kh4s48k0b4j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUXDRQUi6n0MtL0pC_Pc49zmyhZW0iRrA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "905319379496-e8t9pqphng0d3ec3e2ci6kh4s48k0b4j.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
