@@ -10,7 +10,7 @@ from scipy import signal
 def filter(data, fs=10, fc=2.0, order=11):
     # fc = frequency cutoff
     w = fc / (fs / 2) # Normalize the frequency
-    b, a = signal.butter(order, w, 'lowpass', analog=False)
+    b, a = signal.butter(order, w, 'highpass', analog=False)
     return signal.filtfilt(b, a, data)
 
 def get_data():

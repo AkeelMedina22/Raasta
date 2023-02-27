@@ -37,7 +37,7 @@ import folium
 from pyts.image import GramianAngularField
 from pyts.image import MarkovTransitionField
 from pyts.image import RecurrencePlot
-
+from sklearn.preprocessing import minmax_scale
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 path = "virtual"
@@ -319,33 +319,53 @@ def GAF(X_train, Y_train, X_test, Y_test):
 
 def MTF(X_train, Y_train, X_test, Y_test):
 
-    new_X_train = []
     trueflag = False
     falseflag = False
+    new_X_train = []
     for i in range(X_train.shape[0]):
-        gaf = MarkovTransitionField()
-        image = []
-        for j in range(6):
-            image.append(gaf.fit_transform(X_train[i].T[j].reshape((1,-1)))[0])
-        if not trueflag and Y_train[i][0] == 1:
-            plt.imshow(image[5])
-            plt.savefig(path+"_MTF_True/pothole_pic"+str(i))
-            trueflag = True
-        if not falseflag and Y_train[i][0] == 0:
-            plt.imshow(image[5])
-            plt.savefig(path+"_MTF_False/normalroad_pic"+str(i))
-            falseflag = True
-        new_X_train.append(np.transpose(np.array(image), (1,2,0)))
+        gaf = GramianAngularField(sample_range=(-1, 1), method='d')
+        # image = []
+        # print(np.array(X_train[i].flatten().reshape(-1, 1)).shape)
+        new_X_train.append(gaf.fit_transform(minmax_scale(X_train[i].flatten().reshape(1,-1), feature_range=(-1,1)))[0].reshape(360, 360, 1))
+        # print(np.array(new_X_train).shape)
+        # image.append(gaf.fit_transform(X_train[i].flatten().reshape(1,-1)))
+        # print(np.array(image[0][0]).shape)
+        # new_X_train.append(np.transpose(np.array(image), (3,2,1,0)))
     new_X_train = np.array(new_X_train)
 
     new_X_test = []
     for i in range(X_test.shape[0]):
-        gaf = GramianAngularField()
-        image = []
-        for j in range(6):
-            image.append(gaf.fit_transform(X_test[i].T[j].reshape((1,-1)))[0])
-        new_X_test.append(np.transpose(np.array(image), (1,2,0)))
+        gaf = GramianAngularField(sample_range=(-1, 1), method='d')
+        new_X_test.append(gaf.fit_transform(minmax_scale(X_test[i].flatten().reshape(1,-1), feature_range=(-1,1)))[0].reshape(360, 360, 1))
+        # image = []
+        # for j in range(6):
+        #     image.append(gaf.fit_transform(X_test[i].T[j].reshape((1,-1)))[0])
+        # new_X_test.append(np.transpose(np.array(image), (1,2,0)))
     new_X_test = np.array(new_X_test)
+    # for i in range(X_train.shape[0]):
+    #     gaf = MarkovTransitionField()
+    #     image = []
+    #     for j in range(6):
+    #         image.append(gaf.fit_transform(X_train[i].T[j].reshape((1,-1)))[0])
+    #     if not trueflag and Y_train[i][0] == 1:
+    #         plt.imshow(image[5])
+    #         plt.savefig(path+"_MTF_True/pothole_pic"+str(i))
+    #         trueflag = True
+    #     if not falseflag and Y_train[i][0] == 0:
+    #         plt.imshow(image[5])
+    #         plt.savefig(path+"_MTF_False/normalroad_pic"+str(i))
+    #         falseflag = True
+    #     new_X_train.append(np.transpose(np.array(image), (1,2,0)))
+    # new_X_train = np.array(new_X_train)
+
+    # new_X_test = []
+    # for i in range(X_test.shape[0]):
+    #     gaf = GramianAngularField()
+    #     image = []
+    #     for j in range(6):
+    #         image.append(gaf.fit_transform(X_test[i].T[j].reshape((1,-1)))[0])
+    #     new_X_test.append(np.transpose(np.array(image), (1,2,0)))
+    # new_X_test = np.array(new_X_test)
 
 def RF(X_train, Y_train, X_test, Y_test):
 

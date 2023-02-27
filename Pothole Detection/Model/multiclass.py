@@ -96,7 +96,7 @@ def train_test_split(data, longitude, latitude):
         speedbreakers = []
         new_window = []
         new_window_loc = []
-        n = 200
+        n = 250
 
 
         for i in range(len(window)):
@@ -129,22 +129,28 @@ def train_test_split(data, longitude, latitude):
             gyy = [j[4] for j in temp]
             gyz = [j[5] for j in temp]
 
-            new_fs = int(np.random.uniform(3, 6))
-            _x = resample(accx, 10, new_fs)
-            _x = resample(_x, new_fs, 1/new_fs)
-            _y = resample(accy, 10, new_fs)
-            _y = resample(_y, new_fs, 1/new_fs)
-            _z = resample(accz, 10, new_fs)
-            _z = resample(_z, new_fs, 1/new_fs)
-            _gx = resample(gyx, 10, new_fs)
-            _gx = resample(_gx, new_fs, 1/new_fs)
-            _gy = resample(gyy, 10, new_fs)
-            _gy = resample(_gy, new_fs, 1/new_fs)
-            _gz = resample(gyz, 10, new_fs)
-            _gz = resample(_gz, new_fs, 1/new_fs)
-            new = [[a,b,c,d,e,f] for a,b,c,d,e,f in zip(_x, _y, _z, _gx, _gy, _gz)]
-            new_window.append([new, 'Pothole'])
-            new_window_loc.append([potholes[index][1][0], potholes[index][1][1]])
+            if np.random.random() < 0.5:
+
+                new_fs = int(np.random.uniform(2, 4))
+                _x = signal.resample(signal.resample(accx, len(accx)//new_fs), len(accx))
+                _y = signal.resample(signal.resample(accy, len(accy)//new_fs), len(accy))
+                _z = signal.resample(signal.resample(accz, len(accz)//new_fs), len(accz))
+                _gx = signal.resample(signal.resample(gyx, len(gyz)//new_fs), len(gyx))
+                _gy = signal.resample(signal.resample(gyy, len(gyy)//new_fs), len(gyy))
+                _gz = signal.resample(signal.resample(gyz, len(gyz)//new_fs), len(gyz))
+                new = [[a,b,c,d,e,f] for a,b,c,d,e,f in zip(_x, _y, _z, _gx, _gy, _gz)]
+                new_window.append([new, 'Pothole'])
+                new_window_loc.append([potholes[index][1][0], potholes[index][1][1]])
+            else:
+                _x = accx+np.random.uniform(-1, 1, size=np.array(accx).shape)
+                _y = accy+np.random.uniform(-1, 1, size=np.array(accx).shape)
+                _z = accz+np.random.uniform(-1, 1, size=np.array(accx).shape)
+                _gx = gyx+np.random.uniform(-1, 1, size=np.array(accx).shape)
+                _gy = gyy+np.random.uniform(-1, 1, size=np.array(accx).shape)
+                _gz = gyz+np.random.uniform(-1, 1, size=np.array(accx).shape)
+                new = [[a,b,c,d,e,f] for a,b,c,d,e,f in zip(_x, _y, _z, _gx, _gy, _gz)]
+                new_window.append([new, 'Pothole'])
+                new_window_loc.append([potholes[index][1][0], potholes[index][1][1]])
 
         for i in range(abs(s)):
             index = int(np.random.random()*len(speedbreakers))
@@ -156,22 +162,27 @@ def train_test_split(data, longitude, latitude):
             gyy = [j[4] for j in temp]
             gyz = [j[5] for j in temp]
 
-            new_fs = int(np.random.uniform(3, 6))
-            _x = resample(accx, 10, new_fs)
-            _x = resample(_x, new_fs, 1/new_fs)
-            _y = resample(accy, 10, new_fs)
-            _y = resample(_y, new_fs, 1/new_fs)
-            _z = resample(accz, 10, new_fs)
-            _z = resample(_z, new_fs, 1/new_fs)
-            _gx = resample(gyx, 10, new_fs)
-            _gx = resample(_gx, new_fs, 1/new_fs)
-            _gy = resample(gyy, 10, new_fs)
-            _gy = resample(_gy, new_fs, 1/new_fs)
-            _gz = resample(gyz, 10, new_fs)
-            _gz = resample(_gz, new_fs, 1/new_fs)
-            new = [[a,b,c,d,e,f] for a,b,c,d,e,f in zip(_x, _y, _z, _gx, _gy, _gz)]
-            new_window.append([new, 'Speedbreakers'])
-            new_window_loc.append([speedbreakers[index][1][0], speedbreakers[index][1][1]])
+            if np.random.random() < 0.5:
+                new_fs = int(np.random.uniform(2, 4))
+                _x = signal.resample(signal.resample(accx, len(accx)//new_fs), len(accx))
+                _y = signal.resample(signal.resample(accy, len(accy)//new_fs), len(accy))
+                _z = signal.resample(signal.resample(accz, len(accz)//new_fs), len(accz))
+                _gx = signal.resample(signal.resample(gyx, len(gyz)//new_fs), len(gyx))
+                _gy = signal.resample(signal.resample(gyy, len(gyy)//new_fs), len(gyy))
+                _gz = signal.resample(signal.resample(gyz, len(gyz)//new_fs), len(gyz))
+                new = [[a,b,c,d,e,f] for a,b,c,d,e,f in zip(_x, _y, _z, _gx, _gy, _gz)]
+                new_window.append([new, 'Speedbreakers'])
+                new_window_loc.append([speedbreakers[index][1][0], speedbreakers[index][1][1]])
+            else:
+                _x = accx+np.random.uniform(-1, 1, size=np.array(accx).shape)
+                _y = accy+np.random.uniform(-1, 1, size=np.array(accx).shape)
+                _z = accz+np.random.uniform(-1, 1, size=np.array(accx).shape)
+                _gx = gyx+np.random.uniform(-1, 1, size=np.array(accx).shape)
+                _gy = gyy+np.random.uniform(-1, 1, size=np.array(accx).shape)
+                _gz = gyz+np.random.uniform(-1, 1, size=np.array(accx).shape)
+                new = [[a,b,c,d,e,f] for a,b,c,d,e,f in zip(_x, _y, _z, _gx, _gy, _gz)]
+                new_window.append([new, 'Speedbreakers'])
+                new_window_loc.append([speedbreakers[index][1][0], speedbreakers[index][1][1]])
 
         for i in range(n):
             index = int(np.random.random()*len(normals))
@@ -268,7 +279,7 @@ def plot_graphs(history, string):
 # fit and evaluate a model
 def evaluate_model(X_train, Y_train, X_test, Y_test):
 
-    verbose, epochs, batch_size = 1, 100, 16
+    verbose, epochs, batch_size = 1, 200, 16
     n_timesteps, n_features, n_outputs = X_train.shape[1], X_train.shape[2], Y_train.shape[1]
 
     model = tf.keras.Sequential([
@@ -279,11 +290,23 @@ def evaluate_model(X_train, Y_train, X_test, Y_test):
     Conv1D(filters=128, kernel_size=5, activation='relu', kernel_regularizer=tf.keras.regularizers.L1L2(0.0001)),
     MaxPooling1D(pool_size=2, strides=2),
     tf.keras.layers.Dropout(0.4),
-    tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(128, activation='relu', kernel_regularizer=tf.keras.regularizers.L1L2(0.0001), return_sequences=True)),
+    tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64, activation='relu', kernel_regularizer=tf.keras.regularizers.L1L2(0.0001), return_sequences=True)),
     tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(32, activation='relu', kernel_regularizer=tf.keras.regularizers.L1L2(0.0001))),
     tf.keras.layers.Dropout(0.2),
     Dense(64, activation='relu', kernel_regularizer=tf.keras.regularizers.L1L2(0.0001)),
     Dense(n_outputs, activation='sigmoid')])
+    # model = tf.keras.Sequential([
+    # Conv1D(filters=8, kernel_size=8, activation='relu', input_shape=(n_timesteps,n_features), kernel_regularizer=tf.keras.regularizers.L1L2(0.0001)),
+    # Conv1D(filters=16, kernel_size=6, activation='relu', input_shape=(n_timesteps,n_features), kernel_regularizer=tf.keras.regularizers.L1L2(0.0001)),
+    # Conv1D(filters=32, kernel_size=4, activation='relu', input_shape=(n_timesteps,n_features), kernel_regularizer=tf.keras.regularizers.L1L2(0.0001)),
+    # Conv1D(filters=64, kernel_size=3, activation='relu', input_shape=(n_timesteps,n_features), kernel_regularizer=tf.keras.regularizers.L1L2(0.0001)),
+    # tf.keras.layers.Dropout(0.4),
+    # tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(16, activation='relu', kernel_regularizer=tf.keras.regularizers.L1L2(0.0001))),
+    # Dense(32, activation='relu', kernel_regularizer=tf.keras.regularizers.L1L2(0.0001)),
+    # Dense(16, activation='relu', kernel_regularizer=tf.keras.regularizers.L1L2(0.0001)),
+    # tf.keras.layers.Dropout(0.2),
+    # Dense(8, activation='relu', kernel_regularizer=tf.keras.regularizers.L1L2(0.0001)),
+    # Dense(n_outputs, activation='sigmoid')])
 
     model.compile(loss=tf.keras.losses.CategoricalCrossentropy(), optimizer=tf.keras.optimizers.Adam(), metrics=[tf.keras.metrics.CategoricalAccuracy(), tf.keras.metrics.Precision(), tf.keras.metrics.Recall()])
 
@@ -400,7 +423,7 @@ def summarize_results(scores):
 
 # repeat experiment
 scores = list()
-repeats = 1
+repeats = 3
 for r in range(repeats):
     score, precision, recall, f1 = evaluate_model(X_train, Y_train, X_test, Y_test)
     score = score * 100.0

@@ -92,7 +92,7 @@ def train_test_split(data, longitude, latitude):
         speedbreakers = []
         new_window = []
         new_window_loc = []
-        n = 200
+        n = 250
 
 
         for i in range(len(window)):
@@ -125,22 +125,28 @@ def train_test_split(data, longitude, latitude):
             gyy = [j[4] for j in temp]
             gyz = [j[5] for j in temp]
 
-            new_fs = int(np.random.uniform(3, 6))
-            _x = resample(accx, 10, new_fs)
-            _x = resample(_x, new_fs, 1/new_fs)
-            _y = resample(accy, 10, new_fs)
-            _y = resample(_y, new_fs, 1/new_fs)
-            _z = resample(accz, 10, new_fs)
-            _z = resample(_z, new_fs, 1/new_fs)
-            _gx = resample(gyx, 10, new_fs)
-            _gx = resample(_gx, new_fs, 1/new_fs)
-            _gy = resample(gyy, 10, new_fs)
-            _gy = resample(_gy, new_fs, 1/new_fs)
-            _gz = resample(gyz, 10, new_fs)
-            _gz = resample(_gz, new_fs, 1/new_fs)
-            new = [[a,b,c,d,e,f] for a,b,c,d,e,f in zip(_x, _y, _z, _gx, _gy, _gz)]
-            new_window.append([new, 'Pothole'])
-            new_window_loc.append([potholes[index][1][0], potholes[index][1][1]])
+            if np.random.random() < 0.5:
+
+                new_fs = int(np.random.uniform(2, 4))
+                _x = signal.resample(signal.resample(accx, len(accx)//new_fs), len(accx))
+                _y = signal.resample(signal.resample(accy, len(accy)//new_fs), len(accy))
+                _z = signal.resample(signal.resample(accz, len(accz)//new_fs), len(accz))
+                _gx = signal.resample(signal.resample(gyx, len(gyz)//new_fs), len(gyx))
+                _gy = signal.resample(signal.resample(gyy, len(gyy)//new_fs), len(gyy))
+                _gz = signal.resample(signal.resample(gyz, len(gyz)//new_fs), len(gyz))
+                new = [[a,b,c,d,e,f] for a,b,c,d,e,f in zip(_x, _y, _z, _gx, _gy, _gz)]
+                new_window.append([new, 'Pothole'])
+                new_window_loc.append([potholes[index][1][0], potholes[index][1][1]])
+            else:
+                _x = accx+np.random.uniform(-2, 2, size=np.array(accx).shape)
+                _y = accy+np.random.uniform(-2, 2, size=np.array(accx).shape)
+                _z = accz+np.random.uniform(-2, 2, size=np.array(accx).shape)
+                _gx = gyx+np.random.uniform(-2, 2, size=np.array(accx).shape)
+                _gy = gyy+np.random.uniform(-2, 2, size=np.array(accx).shape)
+                _gz = gyz+np.random.uniform(-2, 2, size=np.array(accx).shape)
+                new = [[a,b,c,d,e,f] for a,b,c,d,e,f in zip(_x, _y, _z, _gx, _gy, _gz)]
+                new_window.append([new, 'Pothole'])
+                new_window_loc.append([potholes[index][1][0], potholes[index][1][1]])
 
         for i in range(abs(s)):
             index = int(np.random.random()*len(speedbreakers))
@@ -152,22 +158,27 @@ def train_test_split(data, longitude, latitude):
             gyy = [j[4] for j in temp]
             gyz = [j[5] for j in temp]
 
-            new_fs = int(np.random.uniform(3, 6))
-            _x = resample(accx, 10, new_fs)
-            _x = resample(_x, new_fs, 1/new_fs)
-            _y = resample(accy, 10, new_fs)
-            _y = resample(_y, new_fs, 1/new_fs)
-            _z = resample(accz, 10, new_fs)
-            _z = resample(_z, new_fs, 1/new_fs)
-            _gx = resample(gyx, 10, new_fs)
-            _gx = resample(_gx, new_fs, 1/new_fs)
-            _gy = resample(gyy, 10, new_fs)
-            _gy = resample(_gy, new_fs, 1/new_fs)
-            _gz = resample(gyz, 10, new_fs)
-            _gz = resample(_gz, new_fs, 1/new_fs)
-            new = [[a,b,c,d,e,f] for a,b,c,d,e,f in zip(_x, _y, _z, _gx, _gy, _gz)]
-            new_window.append([new, 'Speedbreakers'])
-            new_window_loc.append([speedbreakers[index][1][0], speedbreakers[index][1][1]])
+            if np.random.random() < 0.5:
+                new_fs = int(np.random.uniform(2, 4))
+                _x = signal.resample(signal.resample(accx, len(accx)//new_fs), len(accx))
+                _y = signal.resample(signal.resample(accy, len(accy)//new_fs), len(accy))
+                _z = signal.resample(signal.resample(accz, len(accz)//new_fs), len(accz))
+                _gx = signal.resample(signal.resample(gyx, len(gyz)//new_fs), len(gyx))
+                _gy = signal.resample(signal.resample(gyy, len(gyy)//new_fs), len(gyy))
+                _gz = signal.resample(signal.resample(gyz, len(gyz)//new_fs), len(gyz))
+                new = [[a,b,c,d,e,f] for a,b,c,d,e,f in zip(_x, _y, _z, _gx, _gy, _gz)]
+                new_window.append([new, 'Speedbreakers'])
+                new_window_loc.append([speedbreakers[index][1][0], speedbreakers[index][1][1]])
+            else:
+                _x = accx+np.random.uniform(-2, 2, size=np.array(accx).shape)
+                _y = accy+np.random.uniform(-2, 2, size=np.array(accx).shape)
+                _z = accz+np.random.uniform(-2, 2, size=np.array(accx).shape)
+                _gx = gyx+np.random.uniform(-2, 2, size=np.array(accx).shape)
+                _gy = gyy+np.random.uniform(-2, 2, size=np.array(accx).shape)
+                _gz = gyz+np.random.uniform(-2, 2, size=np.array(accx).shape)
+                new = [[a,b,c,d,e,f] for a,b,c,d,e,f in zip(_x, _y, _z, _gx, _gy, _gz)]
+                new_window.append([new, 'Speedbreakers'])
+                new_window_loc.append([speedbreakers[index][1][0], speedbreakers[index][1][1]])
 
         for i in range(n):
             index = int(np.random.random()*len(normals))
@@ -179,6 +190,7 @@ def train_test_split(data, longitude, latitude):
             new_window_loc.append(bads[i][1])
 
         return new_window, new_window_loc
+
 
 
     print((p_count, b_count, s_count, n_count))
@@ -271,11 +283,15 @@ def evaluate_model(X_train, Y_train, X_test, Y_test):
     X_test = preprocessing.StandardScaler().fit_transform(X_test)
     Y_train = np.ravel(Y_train)
     Y_test = np.ravel(Y_test)
-    SVM = SVC(C=3.5, cache_size=4000, degree=12, tol=1e-6).fit(X_train, Y_train)
+    SVM = SVC(C=2.5, cache_size=6000, degree=6, tol=1e-9).fit(X_train, Y_train)
     print("training set score: %f" % SVM.score(X_train, Y_train))
     print("test set score: %f" % SVM.score(X_test, Y_test))
 
     m_predict = SVM.predict(X_test)
+
+    print("f1 "+ str(f1_score(Y_test, m_predict, zero_division=1, average='macro')))
+    print("recall " + str(recall_score(Y_test, m_predict, zero_division=1, average='macro')))
+    print("precision " + str(precision_score(Y_test, m_predict, zero_division=1, average='macro')))
 
 
     # pothole_locations = set()
