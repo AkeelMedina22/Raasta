@@ -41,6 +41,13 @@ dependencies:
   firebase_core: 2.4.1
   http: ^0.13.0
   flutter_map_marker_cluster: 1.0.1
+  google_maps_flutter: ^2.2.4
+  google_polyline_algorithm: ^3.1.0
+  url_launcher: ^6.1.10
+  google_maps_flutter_web: ^0.3.2+2
+  geolocator: ^9.0.2
+  geolocator_web: ^2.1.6
+  flutter_google_places_sdk: ^0.3.2+6
 
 dev_dependencies:
   flutter_test:
@@ -66,8 +73,6 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  assets:
-    - home_background.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

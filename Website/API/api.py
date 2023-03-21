@@ -4,12 +4,16 @@ from firebase import firebase
 import uuid
 from flask_cors import CORS, cross_origin
 from flasgger import Swagger
+import googlemaps
+import jsonify
+import requests
 
 app = Flask(__name__)
 CORS(app, support_credentials=True)
 key = ""
 # connect to firebase
 firebase = firebase.FirebaseApplication('https://raasta-c542d-default-rtdb.asia-southeast1.firebasedatabase.app/', None)
+gmaps = googlemaps.Client(key = 'AIzaSyA9j3ueqN9J9KHKGJGz6iB5CJtV7x5Cuyc')
 
 Swagger(app)
 
@@ -35,9 +39,9 @@ def api_key_request():
     key = uuid_str
     return({"key": key}, 200, {'Access-Control-Allow-Origin': '*'})
 
-@app.route('/get_points', methods=['GET'])
+@app.route('/get_points/<TypePoints>', methods=['GET'])
 @cross_origin(origin='*')
-def get_potholes():
+def get_potholes(TypePoints):
     """
     Get pothole points
     ---
@@ -61,21 +65,51 @@ def get_potholes():
     """
     global key
     # get all pothole points from database and send to client
+    print("KEY:", key)
+    print("GOT KEY: ", request.headers["Authorization"])
+
     if request.headers["Authorization"] == key:
-        pothole = []
+      pothole = []
+      speedbreaker = []
+      badroad = []
+
+      if TypePoints == "Pothole":
         result = firebase.get('/pothole-locations', None)
-        for key, value in result.items():
+        for key1, value in result.items():
             latlong = []
             for key2, value2 in value.items():
                 latlong.append(value2)
             pothole.append(latlong)
-        print(pothole)
-        return({"Pothole" : pothole})
+        return({"Points" : pothole})
+      
+      elif TypePoints == "Speedbreaker":
+        result = firebase.get('/speedbreaker-locations', None)
+        for key1, value in result.items():
+            latlong = []
+            for key2, value2 in value.items():
+                latlong.append(value2)
+            speedbreaker.append(latlong)
+        return({"Points" : speedbreaker})
+      
+      elif TypePoints == "BadRoad":
+        result = firebase.get('/badroad-locations', None)
+        for key1, value in result.items():
+            latlong = []
+            for key2, value2 in value.items():
+                latlong.append(value2)
+            badroad.append(latlong)
+        return({"Points" : badroad})
+      
+      else:
+        return({"Points" : "Invalid type of points requested"})
+          
     else:
-        print("NO")
-        return({"Pothole" : "Invalid key"})
+        return({"Points" : "Invalid key"})
 
-# API needs set of location points in order to return pothole/speedbreaker location points
+@app.route('/directions/<origin_latitude>/<origin_longitude>/<destination_latitude>/<destination_longitude>', methods=['GET'])
+def directions(origin_latitude, origin_longitude, destination_latitude, destination_longitude):
+    result = gmaps.directions((origin_latitude, origin_longitude), (destination_latitude, destination_longitude), mode='driving')
+    return result[0]
 
 
 if __name__ == "__main__":
