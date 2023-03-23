@@ -111,6 +111,40 @@ def directions(origin_latitude, origin_longitude, destination_latitude, destinat
     result = gmaps.directions((origin_latitude, origin_longitude), (destination_latitude, destination_longitude), mode='driving')
     return result[0]
 
+@app.route('/autocomplete/<query>/<lat>/<long>')
+def autocomplete(query, lat, long):
+    location = (lat, long)
+    radius = 1000.00
+
+    distanceInDegrees = (radius / 1000) / (40075 * 360)
+    southwestBound_lat = float(lat) - distanceInDegrees
+    southwestBound_lng = float(long) - distanceInDegrees
+
+    northeastBound_lat = float(lat) + distanceInDegrees
+    northeastBound_lng = float(long) + distanceInDegrees
+    
+    bounds = {
+    'northeast': {'lat': northeastBound_lat, 'lng': northeastBound_lng},
+    'southwest': {'lat': southwestBound_lat, 'lng': southwestBound_lng}
+    }
+    
+    result = gmaps.places_autocomplete(query, location = location, radius = 50000, strict_bounds= True)
+    return result
+
+
+@app.route('/get_place_coords/<place_id>')
+def get_place_coords(place_id):
+    
+    place = gmaps.place(place_id, fields=['geometry'])
+    return place
+    # try:
+    #     place = gmaps.place(place_id, fields=['geometry'])
+    #     lat = place['result']['geometry']['location']['lat']
+    #     lng = place['result']['geometry']['location']['lng']
+    #     return f'Latitude: {lat}, Longitude: {lng}'
+    # except googlemaps.exceptions.ApiError as e:
+    #     return f'Error: {e}'
+
 
 if __name__ == "__main__":
     # never run debug in production environment, only development mode
