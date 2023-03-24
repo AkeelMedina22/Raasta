@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import '../screens/about/about_screen.dart';
-import '../screens/docs/docs_screen.dart';
-import '../screens/home/home_screen.dart';
 
 myIndicator(context) => Positioned(
               bottom: 120.0,
@@ -34,7 +31,7 @@ myIndicator(context) => Positioned(
                                 height: 20,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Colors.black,
+                                  color: Colors.red,
                                 ),
                               ),
                           
@@ -66,39 +63,7 @@ myIndicator(context) => Positioned(
                                 height: 20,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Colors.red,
-                                ),
-                              ),
-                          
-                            Container(
-                              width: 120,
-                              height: 30,
-                              child: Align(
-                                alignment: AlignmentDirectional(1, 0),
-                                child: Text('Current Location', textAlign: TextAlign.end)
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        Row(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Container(
-                              width: 6,
-                              height: 6,
-                            ),
-                          ],
-                        ),
-
-                        Row(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [Container(
-                                width: 20,
-                                height: 20,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.blue,
+                                  color: Colors.orange,
                                 ),
                               ),
                           
@@ -130,7 +95,7 @@ myIndicator(context) => Positioned(
                                 height: 20,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Colors.orange,
+                                  color: Colors.yellow,
                                 ),
                               ),
                           
@@ -162,7 +127,7 @@ myIndicator(context) => Positioned(
                                 height: 20,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Colors.yellow,
+                                  color: Colors.red,
                                 ),
                               ),
                           

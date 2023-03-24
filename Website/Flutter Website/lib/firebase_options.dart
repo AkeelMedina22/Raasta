@@ -47,7 +47,7 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyA7l4uspADH_pbEIHEW2d700U9WZOfxZ_U',
+    apiKey: 'AIzaSyA7l4uspADH_pbEIHEW2d700U9WZOfxZ_U',    
     appId: '1:827138641520:web:5972dd658b92e4ac89eeb5',
     messagingSenderId: '827138641520',
     projectId: 'raasta-roadmap-web',

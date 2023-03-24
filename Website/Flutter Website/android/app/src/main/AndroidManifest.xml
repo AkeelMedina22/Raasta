@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.raasta_website">
+    package="com.example.raasta_google_maps">
    <application
-        android:label="raasta_website"
+        android:label="raasta_google_maps"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -1,25 +1,18 @@
 import 'package:flutter/material.dart';
-import '../../screens/home/home_screen.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:raasta_google_maps/screens/home.dart';
 
-
-void main() {
-  runApp(const MyApp());
-}
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Rastaa',
-      theme: ThemeData(
-        primarySwatch: Colors.indigo,
-      ),
-      home: const HomeScreen(),
-    );
-  }
+  Widget build(BuildContext context) => MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Rastaa',
+        theme: ThemeData(
+          primarySwatch: Colors.indigo,
+        ),
+        home: const Home(),
+      );
 }

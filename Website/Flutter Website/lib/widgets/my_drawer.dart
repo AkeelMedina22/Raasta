@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../screens/about/about_screen.dart';
-import '../screens/docs/docs_screen.dart';
-import '../screens/home/home_screen.dart';
+import '../screens/about.dart';
+import '../screens/docs.dart';
+import '../screens/home.dart';
 
 myDrawer(context) => Drawer(
         child: ListView(
