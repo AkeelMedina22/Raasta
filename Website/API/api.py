@@ -108,11 +108,15 @@ def get_potholes(TypePoints):
 
 @app.route('/directions/<origin_latitude>/<origin_longitude>/<destination_latitude>/<destination_longitude>', methods=['GET'])
 def directions(origin_latitude, origin_longitude, destination_latitude, destination_longitude):
+  try:
     result = gmaps.directions((origin_latitude, origin_longitude), (destination_latitude, destination_longitude), mode='driving')
     return result[0]
+  except:
+     return "Error"
 
 @app.route('/autocomplete/<query>/<lat>/<long>')
 def autocomplete(query, lat, long):
+  try:
     location = (lat, long)
     radius = 1000.00
 
@@ -130,20 +134,17 @@ def autocomplete(query, lat, long):
     
     result = gmaps.places_autocomplete(query, location = location, radius = 50000, strict_bounds= True)
     return result
+  except:
+    return "Error"
 
 
 @app.route('/get_place_coords/<place_id>')
 def get_place_coords(place_id):
-    
+  try:
     place = gmaps.place(place_id, fields=['geometry'])
     return place
-    # try:
-    #     place = gmaps.place(place_id, fields=['geometry'])
-    #     lat = place['result']['geometry']['location']['lat']
-    #     lng = place['result']['geometry']['location']['lng']
-    #     return f'Latitude: {lat}, Longitude: {lng}'
-    # except googlemaps.exceptions.ApiError as e:
-    #     return f'Error: {e}'
+  except:
+    return "Error"
 
 
 if __name__ == "__main__":
