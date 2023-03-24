@@ -18,7 +18,7 @@ GOOGLE_APPLICATION_CREDENTIALS="raasta-c542d-firebase-adminsdk-5v3pa-94bf94e3fb.
 cred_obj = credentials.Certificate(GOOGLE_APPLICATION_CREDENTIALS)
 default_app = firebase_admin.initialize_app(cred_obj, {'databaseURL':"https://raasta-c542d-default-rtdb.asia-southeast1.firebasedatabase.app/"})
 
-ref = db.reference("/sensor-data/4908a8ba-f5a8-41f1-8fb1-6d702e6d1fbb/")
+ref = db.reference("/sensor-data2/0a05c04d-c371-4b20-8527-337202bd82f8/")
 session_data = ref.get()
 
 accelerometer_data = []
@@ -34,7 +34,7 @@ latitude = []
 longitude = []
 
 colors = []
-include = ['Pothole', 'Bad Road', 'Speedbreaker', 'Sudden Change', 'Traffic']
+include = ['Pothole', 'Bad Road', 'Speedbreaker']
 color_map = {0: 'darkslategray', 1: 'goldenrod'}
 
 for key in sorted(session_data):
@@ -92,19 +92,19 @@ for key in sorted(session_data):
     except:
         pass
 
-# filt_acx = accelerometer_x
-# filt_acy = accelerometer_y
-# filt_acz = accelerometer_z
-# filt_gyx = gyroscope_x
-# filt_gyy = gyroscope_y
-# filt_gyz = gyroscope_z
+filt_acx = accelerometer_x
+filt_acy = accelerometer_y
+filt_acz = accelerometer_z
+filt_gyx = gyroscope_x
+filt_gyy = gyroscope_y
+filt_gyz = gyroscope_z
 
-filt_acx = filter(accelerometer_x)
-filt_acy = filter(accelerometer_y)
-filt_acz = filter(accelerometer_z)
-filt_gyx = filter(gyroscope_x)
-filt_gyy = filter(gyroscope_y)
-filt_gyz = filter(gyroscope_z)
+# filt_acx = filter(accelerometer_x)
+# filt_acy = filter(accelerometer_y)
+# filt_acz = filter(accelerometer_z)
+# filt_gyx = filter(gyroscope_x)
+# filt_gyy = filter(gyroscope_y)
+# filt_gyz = filter(gyroscope_z)
 
 accelerometer_data = [(i,j,k) for i,j,k in zip(filt_acx, filt_acy, filt_acz)]
 gyroscope_data = [(i,j,k) for i,j,k in zip(filt_gyx, filt_gyy, filt_gyz)]
