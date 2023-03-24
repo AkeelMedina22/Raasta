@@ -7,11 +7,11 @@ from firebase_admin import credentials
 from firebase_admin import db
 from scipy import signal
 
-def filter(data, fs=10, fc=2.0, order=11):
-    # fc = frequency cutoff
-    w = fc / (fs / 2) # Normalize the frequency
-    b, a = signal.butter(order, w, 'highpass', analog=False)
-    return signal.filtfilt(b, a, data)
+# def filter(data, fs=10, fc=2.0, order=11):
+#     # fc = frequency cutoff
+#     w = fc / (fs / 2) # Normalize the frequency
+#     b, a = signal.butter(order, w, 'highpass', analog=False)
+#     return signal.filtfilt(b, a, data)
 
 def get_data():
 
@@ -117,5 +117,13 @@ def get_data():
     # gyroscope_x = filter(gyroscope_x)
     # gyroscope_y = filter(gyroscope_y)
     # gyroscope_z = filter(gyroscope_z)
+
+    # print("grad applied")
+    # accelerometer_x = np.gradient(accelerometer_x)
+    # accelerometer_y = np.gradient(accelerometer_y)
+    # accelerometer_z = np.gradient(accelerometer_z)
+    # gyroscope_x = np.gradient(gyroscope_x)
+    # gyroscope_y = np.gradient(gyroscope_y)
+    # gyroscope_z = np.gradient(gyroscope_z)
 
     return [[[a,b,c,d,e,f],label] for a,b,c,d,e,f,label in zip(accelerometer_x, accelerometer_y, accelerometer_z, gyroscope_x, gyroscope_y, gyroscope_z, labels)], longitude, latitude

@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from datetime import datetime
-from data import get_data
+from newdata import get_data
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 import numpy as np
@@ -32,6 +32,7 @@ import os
 import seaborn as sns
 sns.set()
 import folium
+import pickle
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
@@ -71,13 +72,13 @@ def train_test_split(data, longitude, latitude):
         dic = {"potholes" : potholes, "bad roads": badroads, "normal roads": normalroads, "speedbreakers": speedbreakers}
       
 
-        if dic["potholes"] >= 5:
+        if dic["potholes"] >= 1:
             window.append([without_labels, 'Pothole'])
             p_count+=1
-        elif dic['speedbreakers'] >= 5:
+        elif dic['speedbreakers'] >= 1:
             window.append([without_labels, 'Speedbreakers'])
             s_count += 1
-        elif dic['bad roads'] >= 5:
+        elif dic['bad roads'] >= 1:
             window.append([without_labels, 'Bad road'])
             # print(dic)
             b_count += 1
@@ -96,7 +97,7 @@ def train_test_split(data, longitude, latitude):
         speedbreakers = []
         new_window = []
         new_window_loc = []
-        n = 250
+        n = 350
 
 
         for i in range(len(window)):
@@ -212,7 +213,7 @@ def train_test_split(data, longitude, latitude):
 
     data, locs = unison_shuffled_copies(data, locs)
 
-    train_ratio = 0.8
+    train_ratio = 0.9
     sequence_len = data.shape[0]
 
     train_data = data[0:int(sequence_len*train_ratio)]
@@ -279,39 +280,65 @@ def plot_graphs(history, string):
 # fit and evaluate a model
 def evaluate_model(X_train, Y_train, X_test, Y_test):
 
-    verbose, epochs, batch_size = 1, 200, 16
+    verbose, epochs, batch_size = 1, 100, 16
     n_timesteps, n_features, n_outputs = X_train.shape[1], X_train.shape[2], Y_train.shape[1]
 
-    model = tf.keras.Sequential([
-    Conv1D(filters=32, kernel_size=3, activation='relu', input_shape=(n_timesteps,n_features), kernel_regularizer=tf.keras.regularizers.L1L2(0.0001)),
-    Conv1D(filters=64, kernel_size=3, activation='relu', kernel_regularizer=tf.keras.regularizers.L1L2(0.0001)),
-    MaxPooling1D(pool_size=2, strides=2),
-    Conv1D(filters=64, kernel_size=5, activation='relu', kernel_regularizer=tf.keras.regularizers.L1L2(0.0001)),
-    Conv1D(filters=128, kernel_size=5, activation='relu', kernel_regularizer=tf.keras.regularizers.L1L2(0.0001)),
-    MaxPooling1D(pool_size=2, strides=2),
-    tf.keras.layers.Dropout(0.4),
-    tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64, activation='relu', kernel_regularizer=tf.keras.regularizers.L1L2(0.0001), return_sequences=True)),
-    tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(32, activation='relu', kernel_regularizer=tf.keras.regularizers.L1L2(0.0001))),
-    tf.keras.layers.Dropout(0.2),
-    Dense(64, activation='relu', kernel_regularizer=tf.keras.regularizers.L1L2(0.0001)),
-    Dense(n_outputs, activation='sigmoid')])
     # model = tf.keras.Sequential([
-    # Conv1D(filters=8, kernel_size=8, activation='relu', input_shape=(n_timesteps,n_features), kernel_regularizer=tf.keras.regularizers.L1L2(0.0001)),
-    # Conv1D(filters=16, kernel_size=6, activation='relu', input_shape=(n_timesteps,n_features), kernel_regularizer=tf.keras.regularizers.L1L2(0.0001)),
-    # Conv1D(filters=32, kernel_size=4, activation='relu', input_shape=(n_timesteps,n_features), kernel_regularizer=tf.keras.regularizers.L1L2(0.0001)),
-    # Conv1D(filters=64, kernel_size=3, activation='relu', input_shape=(n_timesteps,n_features), kernel_regularizer=tf.keras.regularizers.L1L2(0.0001)),
+    # Conv1D(filters=16, kernel_size=3, activation='relu', input_shape=(n_timesteps,n_features)),
+    # Conv1D(filters=32, kernel_size=3, activation='relu'),
+    # MaxPooling1D(pool_size=2, strides=2),
+    # Conv1D(filters=32, kernel_size=5, activation='relu'),
+    # Conv1D(filters=64, kernel_size=5, activation='relu'),
     # tf.keras.layers.Dropout(0.4),
-    # tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(16, activation='relu', kernel_regularizer=tf.keras.regularizers.L1L2(0.0001))),
-    # Dense(32, activation='relu', kernel_regularizer=tf.keras.regularizers.L1L2(0.0001)),
-    # Dense(16, activation='relu', kernel_regularizer=tf.keras.regularizers.L1L2(0.0001)),
+    # tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64, activation='relu')),
     # tf.keras.layers.Dropout(0.2),
-    # Dense(8, activation='relu', kernel_regularizer=tf.keras.regularizers.L1L2(0.0001)),
+    # Dense(64, activation='relu'),
     # Dense(n_outputs, activation='sigmoid')])
 
-    model.compile(loss=tf.keras.losses.CategoricalCrossentropy(), optimizer=tf.keras.optimizers.Adam(), metrics=[tf.keras.metrics.CategoricalAccuracy(), tf.keras.metrics.Precision(), tf.keras.metrics.Recall()])
+    il = tf.keras.Input(shape=(n_timesteps,n_features))
+    il1 = Conv1D(filters=16, kernel_size=3, activation='relu', input_shape=(n_timesteps,n_features))(il)
+    l = Conv1D(filters=32, kernel_size=3, activation='relu')(il1)
+    l = MaxPooling1D(pool_size=2, strides=2)(l)
+    l = Conv1D(filters=32, kernel_size=5, activation='relu')(l)
+    l = Conv1D(filters=64, kernel_size=5, activation='relu')(l)
+    l = tf.keras.layers.Dropout(0.4)(l)
+    l = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64, activation='relu'))(l)
+    l = tf.keras.layers.Dropout(0.2)(l)
+    l = Dense(64, activation='relu')(l)
+
+    gl = Conv1D(filters=16, kernel_size=12, activation='relu')(il1)
+    gl = tf.keras.layers.Dropout(0.4)(gl)
+    gl = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64, activation='relu'))(gl)
+    gl = tf.keras.layers.Dropout(0.2)(gl)
+    gl = Dense(64, activation='relu')(gl) 
+
+    con = tf.keras.layers.concatenate([l,gl])
+    
+    final = Dense(64, activation='relu')(con)
+    final = Dense(32, activation='relu')(final)
+    final = Dense(n_outputs, activation='sigmoid')(final)
+
+    model = tf.keras.Model(il, final)
+
+    # model = tf.keras.Sequential([
+    # Conv1D(filters=8, kernel_size=8, activation='relu', input_shape=(n_timesteps,n_features)),
+    # Conv1D(filters=16, kernel_size=6, activation='relu', input_shape=(n_timesteps,n_features)),
+    # Conv1D(filters=32, kernel_size=4, activation='relu', input_shape=(n_timesteps,n_features)),
+    # Conv1D(filters=64, kernel_size=3, activation='relu', input_shape=(n_timesteps,n_features)),
+    # tf.keras.layers.Dropout(0.4),
+    # tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(16, activation='relu')),
+    # Dense(32, activation='relu'),
+    # Dense(16, activation='relu'),
+    # tf.keras.layers.Dropout(0.2),
+    # Dense(8, activation='relu'),
+    # Dense(n_outputs, activation='sigmoid')])
+
+    model.compile(loss=tf.keras.losses.MeanSquaredError(), optimizer=tf.keras.optimizers.Adam(), metrics=[tf.keras.metrics.CategoricalAccuracy(), tf.keras.metrics.Precision(), tf.keras.metrics.Recall()])
 
     # fit network
     history = model.fit(X_train, Y_train, validation_data=(X_test, Y_test), epochs=epochs, batch_size=batch_size, verbose=verbose, shuffle=True)
+
+    tf.keras.models.save_model(model, "Raasta_Model")
 
     plot_graphs(history, 'categorical_accuracy')
     plot_graphs(history, 'loss')
@@ -331,7 +358,7 @@ def evaluate_model(X_train, Y_train, X_test, Y_test):
             onehot_predict.append([0, 0, 1, 0])
         elif index == 3:
             onehot_predict.append([0, 0, 0, 1])
-
+    print(classification_report(onehot_predict, Y_test))
     pothole_locations = set()
     speedbreaker_locations = set()
     badroads_locations = set()
@@ -350,6 +377,7 @@ def evaluate_model(X_train, Y_train, X_test, Y_test):
     pothole_locations = list(pothole_locations)
     badroads_locations = list(badroads_locations)
     speedbreaker_locations = list(speedbreaker_locations)
+
 
     # evaluate model
     _, accuracy, precision, recall = model.evaluate(X_test, Y_test, batch_size=batch_size, verbose=0)
