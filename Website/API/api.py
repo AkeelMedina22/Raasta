@@ -7,6 +7,7 @@ from flasgger import Swagger
 import googlemaps
 import jsonify
 import requests
+import jsonpickle
 
 app = Flask(__name__)
 CORS(app, support_credentials=True)
@@ -133,7 +134,7 @@ def autocomplete(query, lat, long):
     }
     
     result = gmaps.places_autocomplete(query, location = location, radius = 50000, strict_bounds= True)
-    return result
+    return jsonpickle.encode(result)
   except:
     return "Error"
 
