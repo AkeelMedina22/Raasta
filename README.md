@@ -26,5 +26,16 @@ To address this issue, we have developed a road surface classification system us
 [![Top contributors](https://images.repography.com/33913467/AkeelMedina22/Raasta/recent-activity/yK18Sv6uzbamK-aXULYcvMWr69C9vCqValaVMgNWBtA/JOTiRrHOifmd6AWoF6yKsXcB81oLiJ-zF2vFxH8pdUQ_users.svg)](https://github.com/AkeelMedina22/Raasta/graphs/contributors)
 
 
-
+# Team Contributions
+1. Conceptualization, A.M. and A.K.
+2. methodology, A.M. and A.K.;
+3. software, A.M., A.K., S.A.S., and Z.O.K.;
+4. validation, A.M. and A.K.; 
+5. formal analysis, A.M.; 
+6. investigation, A.M. and A.K.; 
+7. data curation, A.M. and A.K.; 
+8. writing---original draft preparation, A.M., S.A.S., and Z.O.K.; writing---review and editing, A.M. and A.K., S.A.S., and Z.O.K.; 
+9. visualization, A.M.,  A.K., S.A.S., and Z.O.K.; 
+10. supervision, A.M. and A.K.; 
+11. project administration, A.M. and A.K., S.A.S., Z.O.K. 
 
