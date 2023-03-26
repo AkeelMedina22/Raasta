@@ -1,9 +1,6 @@
 # What is Raasta?
 
-Final Year Project for Computer Science at Habib University. Details coming soon. 
-
-Our website is available at [Raasta](https://raasta-web.web.app).
-
+Raasta is an undergraduate final-year project developed by Akeel Ather Medina, Abeer Khan, Samarah Asghar Sahto, and Zoha Ovais Karim. This project not only demonstrates the technical skills and expertise we have accumulated throughout the duration of our studies at Habib University but also addresses a critical issue that is regularly being faced by Karachi's citizens. Our website is available at [Raasta](https://raasta-web.web.app).
 
 # Why Raasta?
 
