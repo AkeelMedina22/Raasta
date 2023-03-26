@@ -10,18 +10,18 @@ To address this issue, we have developed a road surface classification system us
 
 
 # Components of Raasta
-### H3 1. Data Collection Application
+### 1. Data Collection Application
 The current state of research in the field of smartphone sensor technology highlights a significant gap in the availability of a comprehensive data set for the detection of road anomaly locations in Karachi. This lack of data has made it necessary to create a labeled and detailed data set from scratch. To address this issue, an Android-based data collection application is developed using Kotlin. This application enables individuals to collect data on their daily commutes, which can provide valuable insights into the current state of road conditions in Karachi. The collected sensor data is transmitted and stored in a non-relational database hosted on Firebase, which serves as a central repository for all the collected sensor data, facilitating easy access and analysis of the data.
 
 The sensor data collected includes various road conditions such as potholes, speed breakers, traffic, and poor road quality. The application features a tri-axial accelerometer and gyroscope integration, along with GPS receiver usage to determine the smartphone's location during the commute at specified intervals. These features allow the application to accurately detect the conditions a vehicle is traveling through and its position. API's like SensorManager and FusedLocationProviderClient are utilized in the application.
 
-### H3 2. API
+### 2. API
 To access relevant information from the cloud-hosted database, a Flask API is developed and deployed.
 
-### H3 3. Website
+### 3. Website
 In order to facilitate the visualization of the results obtained from the data collected on road anomalies in Karachi, a Flutter-based website has been designed. This website enables users to view and interact with a map of the city, which displays the results in the form of color-coded markers. The Flask API is responsible for providing the necessary data for the visualization. Through this website, users can generate routes and inspect them by observing the placement of the markers on the map. The markers serve as an indication of the road conditions along the given route, allowing users to make informed decisions regarding their travel plans. 
 
-### H3 4. Deep Learning Model
+### 4. Deep Learning Model
 
 # Team activity 
 
