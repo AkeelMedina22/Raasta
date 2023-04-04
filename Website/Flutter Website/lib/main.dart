@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:raasta_google_maps/screens/home.dart';
+import 'package:raasta_google_maps/widgets/my_scaffold.dart';
 
 void main() => runApp(const MyApp());
 
@@ -13,6 +14,6 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.indigo,
         ),
-        home: const Home(),
+        home: const MyScaffold(),
       );
 }
