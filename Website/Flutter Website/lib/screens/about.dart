@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:raasta_google_maps/widgets/indicator.dart';
+import 'package:raasta_google_maps/widgets/map_with_components.dart';
+import 'package:raasta_google_maps/classes/api.dart';
+import '../../screens/about.dart';
+import '../../screens/docs.dart';
+import '../../screens/home.dart';
 
 class About extends StatefulWidget {
   const About({Key? key}) : super(key: key);
@@ -11,240 +17,772 @@ class About extends StatefulWidget {
 // https://smartroadsense.it/project/about/
 class _AboutState extends State<About> {
   @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.all(90),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // para 1 title
-            const Padding(
-              padding: EdgeInsets.only(bottom: 30),
-              child: Text(
-                'What is Raasta?',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 28,
-                ),
-              ),
-            ),
-            // para 1
-            const Padding(
-              padding: EdgeInsets.only(bottom: 40),
-              child: Text('Our Approach'),
-            ),
-            // section 2
-            Padding(
-              padding: const EdgeInsets.only(bottom: 40),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 40),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          // para 2 title
-                          Padding(
-                            padding: EdgeInsets.only(bottom: 30),
-                            child: Text(
-                              'text',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 28,
-                              ),
-                            ),
-                          ),
-                          // para 2
-                          Padding(
-                            padding: EdgeInsets.only(bottom: 40),
-                            child: Text('text'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const Expanded(
-                    flex: 1,
-                    child: Padding(
-                      padding: EdgeInsets.only(right: 20),
-                      child: Placeholder(fallbackHeight: 200),
-                    ),
-                  ),
-                  const Expanded(
-                      flex: 1, child: Placeholder(fallbackHeight: 200)),
-                ],
-              ),
-            ),
-            // section 3
-            const Padding(
-              padding: EdgeInsets.only(bottom: 30),
-              child: Text(
-                "Data Availability",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 28,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 40),
-              child: Row(
-                children: [
-                  // grey box
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      border: Border.all(width: 2),
-                    ),
-                    margin: const EdgeInsets.only(right: 30),
-                    padding: const EdgeInsets.all(60),
-                    child: Row(
+  Widget build(BuildContext context)
+  {
+    final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+    final size = MediaQuery.of(context).size;
+
+    
+    return Scaffold(
+      key: _scaffoldKey,
+
+        body: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(16, 12, 16, 0),
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(),
+                  child: Padding(
+                    padding: EdgeInsetsDirectional.fromSTEB(12, 12, 12, 25),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 35),
-                          child: Column(
-                            children: const [
-                              Padding(
-                                padding: EdgeInsets.only(bottom: 10),
-                                child: Text(
-                                  '100000',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 28,
-                                  ),
+                        Column(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              decoration: BoxDecoration(),
+                              child: Padding(
+                                padding:
+                                    EdgeInsetsDirectional.fromSTEB(0, 0, 0, 10),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.max,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            children: [
+                                              Column(
+                                                mainAxisSize: MainAxisSize.max,
+                                                children: [
+                                                  Text(
+                                                    'ABOUT',
+                                                    textAlign: TextAlign.start,
+                                                    style: TextStyle(fontFamily: 'Outfit',
+                                                          fontSize: 125,
+                                                          letterSpacing: 6,
+                                                          fontWeight: FontWeight.w800)
+                                                  ),
+                                                  Text(
+                                                    'RAASTA',
+                                                    textAlign: TextAlign.start,
+                                                    style: TextStyle(fontFamily: 'Outfit',
+                                                          fontSize: 124,
+                                                          fontWeight: FontWeight.w800)
+                                                  ),
+                                                ],
+                                              ),
+                                              Expanded(
+                                                child: Padding(
+                                                  padding: EdgeInsetsDirectional
+                                                      .fromSTEB(18, 5, 10, 0),
+                                                  child: Text(
+                                                    'Raasta is an undergraduate final-year project developed at Habib University to address the issue of rapidly deteriorating road quality in Karachi, Pakistan. We have developed a road surface classification system that uses mobile sensor data to detect potholes and other road surface anomalies, providing their location information through a geographical map.',
+                                                    textAlign:
+                                                        TextAlign.justify,
+                                                    style: TextStyle(fontFamily: 'Outfit',
+                                                          fontSize: 34,
+                                                          height: 1.3,)
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              // para 1
-                              Text('Samples trained on'),
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(0, 60, 0, 80),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'The system utilizes a custom CNN-BiLSTM architecture for multi-class classification,\n leveraging a tri-axial accelerometer, gyroscope, and GPS receiver.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontFamily: 'Outfit',
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.w800)
+                                ),
+                              ),
                             ],
                           ),
                         ),
                         Column(
-                          children: const [
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
                             Padding(
-                              padding: EdgeInsets.only(bottom: 10),
-                              child: Text(
-                                '100000',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 28,
+                              padding:
+                                  EdgeInsetsDirectional.fromSTEB(0, 0, 0, 20),
+                              child: Container(
+                                width: double.infinity,
+                                decoration: BoxDecoration(),
+                                child: Padding(
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      0, 0, 0, 10),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.max,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              mainAxisSize: MainAxisSize.max,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Expanded(
+                                                  child: Align(
+                                                    alignment:
+                                                        AlignmentDirectional(
+                                                            -1, 0.15),
+                                                    child: Padding(
+                                                      padding:
+                                                          EdgeInsetsDirectional
+                                                              .fromSTEB(
+                                                                  0, 0, 0, 10),
+                                                      child: Text(
+                                                        'OUR APPROACH',
+                                                        textAlign:
+                                                            TextAlign.start,
+                                                        style: TextStyle(fontFamily: 'Outfit',
+                                                          fontSize: 55,
+                                                          fontWeight: FontWeight.w800), 
+                                                          
+                                                    )
+
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              mainAxisSize: MainAxisSize.max,
+                                              children: [
+                                                Expanded(
+                                                  child: Padding(
+                                                    padding:
+                                                        EdgeInsetsDirectional
+                                                            .fromSTEB(
+                                                                0, 0, 20, 0),
+                                                    child: Text(
+                                                      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc maximus, nulla ut commodo sagittis, sapien dui mattis dui, non pulvinar lorem felis nec erat Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc maximus, nulla ut commodo sagittis, sapien dui mattis dui, non pulvinar lorem felis nec erat Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc maximus, nulla ut commodo sagittis, sapien dui mattis dui, non pulvinar lorem felis nec erat Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc maximus, nulla ut commodo sagittis, sapien dui mattis dui, non pulvinar lorem felis nec erat Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc maximus, nulla ut commodo sagittis, sapien dui mattis dui, non pulvinar lorem felis nec erat Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc maximus, nulla ut commodo sagittis, sapien dui mattis dui, non pulvinar lorem felis nec eratLorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc maximus, nulla ut commodo sagittis, sapien dui mattis dui, non pulvinar lorem felis nec erat Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc maximus, nulla ut commodo sagittis, sapien dui mattis dui, non pulvinar lorem felis nec eratLorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc maximus, nulla ut commodo sagittis, sapien dui mattis dui, non pulvinar lorem felis nec erat Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc maximus, nulla ut commodo sagittis, sapien dui mattis dui, non pulvinar lorem felis nec eratLorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc maximus, nulla ut commodo sagittis, sapien dui mattis dui, non pulvinar lorem felis nec erat Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc maximus, nulla ut commodo sagittis, sapien dui mattis dui, non pulvinar lorem felis nec erat',
+                                                      textAlign:
+                                                          TextAlign.justify,
+                                                      style: TextStyle(fontFamily: 'Outfit',
+                                                          fontSize: 14,
+                                                          fontWeight: FontWeight.w600)
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsetsDirectional.fromSTEB(
+                                            0, 0, 10, 0),
+                                        child: Image.network(
+                                          'https://picsum.photos/seed/286/600',
+                                          width: 300,
+                                          height: 300,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                      Image.network(
+                                        'https://picsum.photos/seed/912/600',
+                                        width: 300,
+                                        height: 300,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                            // para 1
-                            Text('Accuracies acquired'),
+                          ],
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Expanded(
+                              child: Padding(
+                                padding:
+                                    EdgeInsetsDirectional.fromSTEB(0, 0, 0, 20),
+                                child: Text(
+                                  'DATA AVAILABILITY',
+                                  style:TextStyle(fontFamily: 'Outfit',
+                                        fontSize: 55,
+                                        fontWeight: FontWeight.w800) 
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 20),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              Container(
+                                width: 520.1,
+                                height: 149,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey,
+                                  borderRadius: BorderRadius.circular(5),
+                                  border: Border.all(
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'Hello World',
+                                          ),
+                                          Text(
+                                            'Hello World',
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'Hello World',
+                                          ),
+                                          Text(
+                                            'Hello World',
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                child: Padding(
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      20, 0, 0, 0),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc maximus, nulla ut commodo sagittis, sapien dui mattis dui, non pulvinar lorem felis nec erat Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc maximus, nulla ut commodo sagittis, sapien dui mattis dui, non pulvinar lorem felis nec erat Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc maximus, nulla ut commodo sagittis, sapien dui mattis dui, non pulvinar lorem felis nec erat Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc maximus, nulla ut commodo sagittis, sapien dui mattis dui, non pulvinar lorem felis nec erat ',
+                                          textAlign: TextAlign.justify,
+                                          style: TextStyle(fontFamily: 'Outfit',
+                                                fontWeight: FontWeight.w600)
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(0, 80, 0, 80),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'COLLECT, PROCESS, AND DISPLAY.',
+                                style: TextStyle(fontFamily: 'Outfit',
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.w800)
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 20),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              Expanded(
+                                child: Padding(
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      0, 10, 0, 0),
+                                  child: Text(
+                                    'THE TEAM',
+                                    style: TextStyle(fontFamily: 'Outfit',
+                                            fontSize: 55,
+                                            fontWeight: FontWeight.w800)
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        0, 0, 10, 10),
+                                    child: Container(
+                                      width: 250,
+                                      height: 250,
+                                      clipBehavior: Clip.antiAlias,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Image.network(
+                                        '/assets/akeel.jpeg',
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        0, 10, 0, 0),
+                                    child: Text(
+                                      'Hello World',
+                                      style: TextStyle(fontFamily: 'Outfit',
+                                            fontWeight: FontWeight.w600)
+                                    ),
+                                  ),
+                                  Text(
+                                    'Hello World',
+                                  ),
+                                  Text(
+                                    'Hello World',
+                                  ),
+                                  Text(
+                                    'Hello World',
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        0, 0, 10, 10),
+                                    child: Container(
+                                      width: 250,
+                                      height: 250,
+                                      clipBehavior: Clip.antiAlias,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Image.network(
+                                        'assets/abeer.jpeg',
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        0, 10, 0, 0),
+                                    child: Text(
+                                      'Hello World',
+
+                                    ),
+                                  ),
+                                  Text(
+                                    'Hello World',
+                                  ),
+                                  Text(
+                                    'Hello World',
+                                  ),
+                                  Text(
+                                    'Hello World',
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        0, 0, 10, 10),
+                                    child: Container(
+                                      width: 250,
+                                      height: 250,
+                                      clipBehavior: Clip.antiAlias,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Image.network(
+                                        'assets/zoha.jpeg',
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        0, 10, 0, 0),
+                                    child: Text(
+                                      'Hello World',
+                                    ),
+                                  ),
+                                  Text(
+                                    'Hello World',
+                                  ),
+                                  Text(
+                                    'Hello World',
+                                  ),
+                                  Text(
+                                    'Hello World',
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        0, 0, 0, 10),
+                                    child: Container(
+                                      width: 250,
+                                      height: 250,
+                                      clipBehavior: Clip.antiAlias,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Image.network(
+                                        'assets/samra.jpeg',
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        0, 10, 0, 0),
+                                    child: Text(
+                                      'Hello World',
+                                    ),
+                                  ),
+                                  Text(
+                                    'Hello World',
+                                  ),
+                                  Text(
+                                    'Hello World',
+                                  ),
+                                  Text(
+                                    'Hello World',
+                                  ),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
                       ],
                     ),
                   ),
-                  const Text('Lorem ipsum'),
-                ],
-              ),
-            ),
-            // section 4
-            const Padding(
-              padding: EdgeInsets.only(bottom: 30),
-              child: Text(
-                "Our Team",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 28,
                 ),
               ),
-            ),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: List.generate(
-                1,
-
-                (index) => Column(
+              Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(0, 12, 0, 44),
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  primary: false,
+                  shrinkWrap: true,
+                  scrollDirection: Axis.vertical,
                   children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(width: 3),
+                    Padding(
+                      padding: EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
+                      child: Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(),
                       ),
-                      height: 200,
-                      width: 200,
-                      margin: const EdgeInsets.only(bottom: 30),
                     ),
-                    const Text('Abeer Khan'),
-                    const Text('Habib University, DSSE'),
-                    const Text('Contact: email address'),
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(width: 3),
-                      ),
-                      height: 200,
-                      width: 200,
-                      margin: const EdgeInsets.only(bottom: 30),
-                    ),
-                    const Text('Akeel Ather Medina'),
-                    const Text('Habib University, DSSE'),
-                    const Text('Contact: email address'),
-                    Container(
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                            image: AssetImage('samra.jpeg'), fit: BoxFit.fill),
-                        shape: BoxShape.circle,
-                        border: Border.all(width: 3),
-                      ),
-                      height: 200,
-                      width: 200,
-                      margin: const EdgeInsets.only(bottom: 30),
-                    ),
-                    const Text('Samarah Asghar Sahto'),
-                    const Text('Habib University, DSSE'),
-                    const Text('Contact: email address'),
-                    Container(
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                            image: AssetImage('zoha.jpeg'), fit: BoxFit.fill),
-                        shape: BoxShape.circle,
-                        border: Border.all(width: 3),
-                      ),
-                      height: 200,
-                      width: 200,
-                      margin: const EdgeInsets.only(bottom: 30),
-                    ),
-                    const Text('Zoha Ovais Karim'),
-                    const Text('Habib University, DSSE'),
-                    const Text('Contact: email address'),
                   ],
                 ),
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //   children: List.generate(
-                //     4,
-                //     (index) => Column(
-                //       children: [
-                //         Container(
-                //           decoration: BoxDecoration(
-                //             shape: BoxShape.circle,
-                //             border: Border.all(width: 3),
-                //           ),
-                //           height: 200,
-                //           width: 200,
-                //           margin: const EdgeInsets.only(bottom: 30),
-                //         ),
-                //         const Text('Abeer Khan'),
-                //         const Text('Habib University, DSSE'),
-                //         const Text('Contact: email address'),
-
-                //       ],
-                //     ),
-                //   ),
-                // ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      );
+      //   body:    Padding(
+      //   padding: const EdgeInsets.all(90),
+      //   child: Column(
+      //     crossAxisAlignment: CrossAxisAlignment.start,
+      //     children: [
+      //       // para 1 title
+      //       const Padding(
+      //         padding: EdgeInsets.only(bottom: 30),
+      //         child: Text(
+      //           'What is Raasta?',
+      //           style: TextStyle(
+      //             fontWeight: FontWeight.bold,
+      //             fontSize: 28,
+      //           ),
+      //         ),
+      //       ),
+      //       // para 1
+      //       const Padding(
+      //         padding: EdgeInsets.only(bottom: 40),
+      //         child: Text('Our Approach'),
+      //       ),
+      //       // section 2
+      //       Padding(
+      //         padding: const EdgeInsets.only(bottom: 40),
+      //         child: Row(
+      //           crossAxisAlignment: CrossAxisAlignment.start,
+      //           children: [
+      //             Expanded(
+      //               flex: 3,
+      //               child: Padding(
+      //                 padding: const EdgeInsets.only(right: 40),
+      //                 child: Column(
+      //                   crossAxisAlignment: CrossAxisAlignment.start,
+      //                   children: const [
+      //                     // para 2 title
+      //                     Padding(
+      //                       padding: EdgeInsets.only(bottom: 30),
+      //                       child: Text(
+      //                         'text',
+      //                         style: TextStyle(
+      //                           fontWeight: FontWeight.bold,
+      //                           fontSize: 28,
+      //                         ),
+      //                       ),
+      //                     ),
+      //                     // para 2
+      //                     Padding(
+      //                       padding: EdgeInsets.only(bottom: 40),
+      //                       child: Text('text'),
+      //                     ),
+      //                   ],
+      //                 ),
+      //               ),
+      //             ),
+      //             const Expanded(
+      //               flex: 1,
+      //               child: Padding(
+      //                 padding: EdgeInsets.only(right: 20),
+      //                 child: Placeholder(fallbackHeight: 200),
+      //               ),
+      //             ),
+      //             const Expanded(
+      //                 flex: 1, child: Placeholder(fallbackHeight: 200)),
+      //           ],
+      //         ),
+      //       ),
+      //       // section 3
+      //       const Padding(
+      //         padding: EdgeInsets.only(bottom: 30),
+      //         child: Text(
+      //           "Data Availability",
+      //           style: TextStyle(
+      //             fontWeight: FontWeight.bold,
+      //             fontSize: 28,
+      //           ),
+      //         ),
+      //       ),
+      //       Padding(
+      //         padding: const EdgeInsets.only(bottom: 40),
+      //         child: Row(
+      //           children: [
+      //             // grey box
+      //             Container(
+      //               decoration: BoxDecoration(
+      //                 color: Colors.grey.shade300,
+      //                 border: Border.all(width: 2),
+      //               ),
+      //               margin: const EdgeInsets.only(right: 30),
+      //               padding: const EdgeInsets.all(60),
+      //               child: Row(
+      //                 children: [
+      //                   Padding(
+      //                     padding: const EdgeInsets.only(right: 35),
+      //                     child: Column(
+      //                       children: const [
+      //                         Padding(
+      //                           padding: EdgeInsets.only(bottom: 10),
+      //                           child: Text(
+      //                             '100000',
+      //                             style: TextStyle(
+      //                               fontWeight: FontWeight.bold,
+      //                               fontSize: 28,
+      //                             ),
+      //                           ),
+      //                         ),
+      //                         // para 1
+      //                         Text('Samples trained on'),
+      //                       ],
+      //                     ),
+      //                   ),
+      //                   Column(
+      //                     children: const [
+      //                       Padding(
+      //                         padding: EdgeInsets.only(bottom: 10),
+      //                         child: Text(
+      //                           '100000',
+      //                           style: TextStyle(
+      //                             fontWeight: FontWeight.bold,
+      //                             fontSize: 28,
+      //                           ),
+      //                         ),
+      //                       ),
+      //                       // para 1
+      //                       Text('Accuracies acquired'),
+      //                     ],
+      //                   ),
+      //                 ],
+      //               ),
+      //             ),
+      //             const Text('Lorem ipsum'),
+      //           ],
+      //         ),
+      //       ),
+      //       // section 4
+      //       const Padding(
+      //         padding: EdgeInsets.only(bottom: 30),
+      //         child: Text(
+      //           "Our Team",
+      //           style: TextStyle(
+      //             fontWeight: FontWeight.bold,
+      //             fontSize: 28,
+      //           ),
+      //         ),
+      //       ),
+
+      //       Row(
+      //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //         children: List.generate(
+      //           1,
+
+      //           (index) => Column(
+      //             children: [
+      //               Container(
+      //                 decoration: BoxDecoration(
+      //                   shape: BoxShape.circle,
+      //                   border: Border.all(width: 3),
+      //                 ),
+      //                 height: 200,
+      //                 width: 200,
+      //                 margin: const EdgeInsets.only(bottom: 30),
+      //               ),
+      //               const Text('Abeer Khan'),
+      //               const Text('Habib University, DSSE'),
+      //               const Text('Contact: email address'),
+      //               Container(
+      //                 decoration: BoxDecoration(
+      //                   shape: BoxShape.circle,
+      //                   border: Border.all(width: 3),
+      //                 ),
+      //                 height: 200,
+      //                 width: 200,
+      //                 margin: const EdgeInsets.only(bottom: 30),
+      //               ),
+      //               const Text('Akeel Ather Medina'),
+      //               const Text('Habib University, DSSE'),
+      //               const Text('Contact: email address'),
+      //               Container(
+      //                 decoration: BoxDecoration(
+      //                   image: DecorationImage(
+      //                       image: AssetImage('samra.jpeg'), fit: BoxFit.fill),
+      //                   shape: BoxShape.circle,
+      //                   border: Border.all(width: 3),
+      //                 ),
+      //                 height: 200,
+      //                 width: 200,
+      //                 margin: const EdgeInsets.only(bottom: 30),
+      //               ),
+      //               const Text('Samarah Asghar Sahto'),
+      //               const Text('Habib University, DSSE'),
+      //               const Text('Contact: email address'),
+      //               Container(
+      //                 decoration: BoxDecoration(
+      //                   image: DecorationImage(
+      //                       image: AssetImage('zoha.jpeg'), fit: BoxFit.fill),
+      //                   shape: BoxShape.circle,
+      //                   border: Border.all(width: 3),
+      //                 ),
+      //                 height: 200,
+      //                 width: 200,
+      //                 margin: const EdgeInsets.only(bottom: 30),
+      //               ),
+      //               const Text('Zoha Ovais Karim'),
+      //               const Text('Habib University, DSSE'),
+      //               const Text('Contact: email address'),
+      //             ],
+      //           ),
+      //           // Row(
+      //           //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //           //   children: List.generate(
+      //           //     4,
+      //           //     (index) => Column(
+      //           //       children: [
+      //           //         Container(
+      //           //           decoration: BoxDecoration(
+      //           //             shape: BoxShape.circle,
+      //           //             border: Border.all(width: 3),
+      //           //           ),
+      //           //           height: 200,
+      //           //           width: 200,
+      //           //           margin: const EdgeInsets.only(bottom: 30),
+      //           //         ),
+      //           //         const Text('Abeer Khan'),
+      //           //         const Text('Habib University, DSSE'),
+      //           //         const Text('Contact: email address'),
+
+      //           //       ],
+      //           //     ),
+      //           //   ),
+      //           // ),
+      //         ),
+      //       ),
+      //     ],
+      //   ),
+      // )
+    );
+
+  }
+
 }
 
 
