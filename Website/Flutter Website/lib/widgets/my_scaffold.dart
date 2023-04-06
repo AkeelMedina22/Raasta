@@ -1,4 +1,8 @@
+import 'dart:core';
+import 'dart:core';
+
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../screens/about.dart';
 import '../screens/docs.dart';
 import '../screens/home.dart';
@@ -11,6 +15,7 @@ class MyScaffold extends StatefulWidget {
 }
 
 class _MyScaffoldState extends State<MyScaffold> {
+
   static const List<List> tabs = [    
     ['Home', Home()],
     ['Docs', Docs()],
@@ -27,7 +32,12 @@ class _MyScaffoldState extends State<MyScaffold> {
       (index) => Padding(
         padding: const EdgeInsets.only(right: 10),
         child: TextButton(
-          onPressed: () => setState(() => tabIndex = index),
+          onPressed: () {if (tabs[index][0] == 'Docs') {
+          // API DOCUMENTATION LINK
+          launchUrl(Uri.parse('http://localhost:5000/apidocs/'));
+        } else {
+          setState(() => tabIndex = index);
+        }},
           child: Text(
             tabs[index][0],
             style: TextStyle(
