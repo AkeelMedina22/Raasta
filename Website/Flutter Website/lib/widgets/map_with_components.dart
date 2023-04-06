@@ -24,13 +24,15 @@ class _MapWithComponentsState extends State<MapWithComponents> {
     markerFuture = updateMarkers();
     super.initState();
   }
+
   String apiUrl = "127.0.0.1:5000";
 
   Future<List<Marker>> updateMarkers() async {
     List<Marker> result = [];
     String key = await API.getKey();
     List<Map<dynamic, dynamic>> pothole = await API.getPoints(key, "Pothole");
-    List<Map<dynamic, dynamic>> speedbreaker = await API.getPoints(key, "Speedbreaker");
+    List<Map<dynamic, dynamic>> speedbreaker =
+        await API.getPoints(key, "Speedbreaker");
     List<Map<dynamic, dynamic>> badroad = await API.getPoints(key, "BadRoad");
 
     List<Map<dynamic, dynamic>> points = [];
@@ -91,7 +93,6 @@ class _MapWithComponentsState extends State<MapWithComponents> {
 
   Polyline? route;
   Future<Polyline> fetchRoute(LatLng start, LatLng stop) async {
-
     final o_lat = start.latitude;
     final o_lng = start.longitude;
 
@@ -165,7 +166,8 @@ class _MapWithComponentsState extends State<MapWithComponents> {
         ),
       );
 
-  final Completer<GoogleMapController> _mapController = Completer<GoogleMapController>();
+  final Completer<GoogleMapController> _mapController =
+      Completer<GoogleMapController>();
   final TextEditingController searchController = TextEditingController();
   List<LatLng> potholes = [];
   List<Map<String, String>> searchResults = <Map<String, String>>[];
@@ -235,19 +237,15 @@ class _MapWithComponentsState extends State<MapWithComponents> {
 
   @override
   Widget build(BuildContext context) {
-
     final Widget searchBar = MapSearchField(
       searchController: searchController,
       onResultsGenerated: (results) {
         bool areSame = true;
-        if (results[0]['name'] == "None")
-        {
+        if (results[0]['name'] == "None") {
           setState(() {
             searchResults = [];
           });
-        }
-        else
-        {
+        } else {
           if (results.length != searchResults.length) areSame = false;
           for (int i = 0; i < results.length && areSame; i++) {
             if (results[i].values.first != searchResults[i].values.first ||
@@ -256,85 +254,82 @@ class _MapWithComponentsState extends State<MapWithComponents> {
             }
           }
           if (!areSame) setState(() => searchResults = results);
-
         }
-        
       },
     );
 
-    final Widget startButton = Stack(children: [
-      if (selected && !_start && !_end)
+    final Widget startButton = Stack(
+      children: [
+        if (selected && !_start && !_end)
           Positioned(
             top: 65,
             left: 600,
             right: 600,
             child: ElevatedButton(
-            onPressed: () async {
-              if (start != null) {
-                await animateCamera(start!);
-                setState(() {_start = true; selected = false;});
-                searchResults = [];
-                searchController.clear();
-
-              } else {
-                start = await getLatLng();
-              }
-            },
-            child: const Text("Start"),
+              onPressed: () async {
+                if (start != null) {
+                  await animateCamera(start!);
+                  setState(() {
+                    _start = true;
+                    selected = false;
+                  });
+                  searchResults = [];
+                  searchController.clear();
+                } else {
+                  start = await getLatLng();
+                }
+              },
+              child: const Text("Start"),
+            ),
           ),
-          ),
-          if (selected && _start && !_end)
-              Positioned(
-                top: 65,
-                left: 600,
-                right: 600,
-                child: ElevatedButton(
-                onPressed: () async {
-                  if (end != null)
-                  {
-                    if (end != start)
-                    {
-                      await animateCamera(end!);
-                      route = await fetchRoute(start!, end!);
-                      setState(() {_end = true;});
-                      searchResults = [];
-                      searchController.clear();
-                    }
-                    else
-                    {
-                      // error dialog box should appear
-                    }
-                  }
-                  else
-                  {
-                    end = await getLatLng();
-                  }
-                },
-                child: const Text("End"),
-              ),
-              ),
-              if (_start || _end)
-                Positioned(
-                  bottom: 640.0,
-                  right: 35.0,
-                  child: ElevatedButton(
-                  onPressed: () async {
-                    await animateCamera(LatLng(24.9059, 67.1383));
+        if (selected && _start && !_end)
+          Positioned(
+            top: 65,
+            left: 600,
+            right: 600,
+            child: ElevatedButton(
+              onPressed: () async {
+                if (end != null) {
+                  if (end != start) {
+                    await animateCamera(end!);
+                    route = await fetchRoute(start!, end!);
                     setState(() {
-                      selected = false;
-                      _start = false;
-                      _end = false;
-                      route = null;
-                      start = null;
-                      end = null;
-                      markerFuture = updateMarkers();
-                    }); 
-                  },
-                  child: const Text("Reset"),
-                ),
-                ),
-        ],);
-
+                      _end = true;
+                    });
+                    searchResults = [];
+                    searchController.clear();
+                  } else {
+                    // error dialog box should appear
+                  }
+                } else {
+                  end = await getLatLng();
+                }
+              },
+              child: const Text("End"),
+            ),
+          ),
+        if (_start || _end)
+          Positioned(
+            bottom: 640.0,
+            right: 35.0,
+            child: ElevatedButton(
+              onPressed: () async {
+                await animateCamera(LatLng(24.9059, 67.1383));
+                setState(() {
+                  selected = false;
+                  _start = false;
+                  _end = false;
+                  route = null;
+                  start = null;
+                  end = null;
+                  markerFuture = updateMarkers();
+                });
+              },
+              child: const Text("Reset"),
+            ),
+          ),
+      ],
+    );
 
     // final Widget buttonColumn = Container(
     //   alignment: Alignment.topRight,
@@ -344,7 +339,7 @@ class _MapWithComponentsState extends State<MapWithComponents> {
     //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     //     crossAxisAlignment: CrossAxisAlignment.end,
     //     children: [
-          
+
     //       // ElevatedButton(
     //       //   onPressed: () async {
     //       //     if (start != null) {
@@ -396,40 +391,38 @@ class _MapWithComponentsState extends State<MapWithComponents> {
     //   ),
     // );
 
-    
-    final Widget searchResultView = searchResults.isEmpty ? const SizedBox.shrink() : Positioned(
-                                    top: 56,
-                                    left: 250,
-                                    right: 250,
-                                    child: Card(
-                                      elevation: 4.0,
-                                      shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                    ),
-                                    child: ListView.builder(
-                                      shrinkWrap: true,
-                                      itemCount: searchResults.length,
-                                      itemBuilder: (context, index) {
-                                        return ListTile(
-                                          title: Text(searchResults[index].values.first),
-                                          onTap: () async {
-                                            final place = searchResults[index]['place_id'];
-                                            LatLng latLng = await API.getPlacePoints(place);
-                                            await animateCamera(latLng);
-                                            searchController.text = searchResults[index]['name']!;
-                                            setState(() {
-                                              searchResults = [];
-                                              selected = true;
-                                            });
-                                          },
-                                        );
-                                      },
-                                    ),
-                                    ),
-                                  );
-
-
-
+    final Widget searchResultView = searchResults.isEmpty
+        ? const SizedBox.shrink()
+        : Positioned(
+            top: 56,
+            left: 250,
+            right: 250,
+            child: Card(
+              elevation: 4.0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: searchResults.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(searchResults[index].values.first),
+                    onTap: () async {
+                      final place = searchResults[index]['place_id'];
+                      LatLng latLng = await API.getPlacePoints(place);
+                      await animateCamera(latLng);
+                      searchController.text = searchResults[index]['name']!;
+                      setState(() {
+                        searchResults = [];
+                        selected = true;
+                      });
+                    },
+                  );
+                },
+              ),
+            ),
+          );
 
     // final Widget searchResultView = DecoratedBox(
     //   decoration: const BoxDecoration(
@@ -478,7 +471,6 @@ class _MapWithComponentsState extends State<MapWithComponents> {
     //         ),
     // );
 
-
     final Widget gMap = Stack(
       children: [
         FutureBuilder(
@@ -494,7 +486,7 @@ class _MapWithComponentsState extends State<MapWithComponents> {
               Marker(
                 markerId: const MarkerId('END'),
                 position: end!,
-                infoWindow: const InfoWindow(title: 'START'),
+                infoWindow: const InfoWindow(title: 'END'),
               )
           ],
           builder: (context, snapshot) => GoogleMap(
@@ -515,15 +507,12 @@ class _MapWithComponentsState extends State<MapWithComponents> {
                 Marker(
                   markerId: const MarkerId('END'),
                   position: end!,
-                  infoWindow: const InfoWindow(title: 'START'),
+                  infoWindow: const InfoWindow(title: 'END'),
                 ),
-                
-
-              
               ...snapshot.data!.where(
                 (marker) => route == null
                     ? true
-                    : distanceFromRoute(route!, marker.position) < 0.1,
+                    : distanceFromRoute(route!, marker.position) < 0.0001,
               ),
             },
           ),
@@ -538,13 +527,15 @@ class _MapWithComponentsState extends State<MapWithComponents> {
       ],
     );
 
-    return Stack(children: 
-              [gMap, 
-              searchBar, 
-              searchResultView,
-              myIndicator(context), 
-              startButton,
-              ],);
+    return Stack(
+      children: [
+        gMap,
+        searchBar,
+        searchResultView,
+        myIndicator(context),
+        startButton,
+      ],
+    );
 
     // return Container(
     //   clipBehavior: Clip.antiAlias,
