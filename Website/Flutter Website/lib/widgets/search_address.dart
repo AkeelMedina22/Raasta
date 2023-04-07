@@ -140,7 +140,7 @@ class MapSearchField extends StatelessWidget {
                           behavior: HitTestBehavior.opaque,
                           onTap: () {
                             searchController.clear();
-                            onResultsGenerated([]);
+                            onResultsGenerated([{'name' : "None"}]);
                           },
                           child: Icon(Icons.close),
                         ),
