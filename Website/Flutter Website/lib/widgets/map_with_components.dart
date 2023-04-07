@@ -323,6 +323,7 @@ class _MapWithComponentsState extends State<MapWithComponents> {
                   start = null;
                   end = null;
                   markerFuture = updateMarkers();
+                  searchController.clear();
                 });
               },
               child: const Text("Reset"),
