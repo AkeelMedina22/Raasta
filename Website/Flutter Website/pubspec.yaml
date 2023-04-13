@@ -73,6 +73,11 @@ flutter:
 
   assets:
     - assets/raasta_icon.svg
+    - assets/samra.jpeg
+    - assets/zoha.jpeg
+    - assets/abeer.jpeg
+    - assets/akeel.jpeg
+
 
   # To add assets to your application, add an assets section, like this:
   # assets:
