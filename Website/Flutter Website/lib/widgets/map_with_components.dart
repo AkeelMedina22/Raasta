@@ -25,7 +25,8 @@ class _MapWithComponentsState extends State<MapWithComponents> {
     super.initState();
   }
 
-  String apiUrl = "127.0.0.1:5000";
+  String APIURL = "raasta.pythonanywhere.com";
+  // String apiUrl = "127.0.0.1:5000";
 
   Future<List<Marker>> updateMarkers() async {
     List<Marker> result = [];
@@ -310,8 +311,10 @@ class _MapWithComponentsState extends State<MapWithComponents> {
           ),
         if (_start || _end)
           Positioned(
-            bottom: 640.0,
-            right: 35.0,
+            // bottom: 640.0,
+            // right: 35.0,
+            bottom: 250.0,
+            right: 50.0,
             child: ElevatedButton(
               onPressed: () async {
                 await animateCamera(LatLng(24.9059, 67.1383));
@@ -323,7 +326,6 @@ class _MapWithComponentsState extends State<MapWithComponents> {
                   start = null;
                   end = null;
                   markerFuture = updateMarkers();
-                  searchController.clear();
                 });
               },
               child: const Text("Reset"),
