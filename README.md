@@ -1,4 +1,4 @@
-# Raasta?
+# Raasta
 
 Raasta is an undergraduate final-year project developed at Habib University to address the issue of rapidly deteriorating road quality in Karachi, Pakistan. We have developed a road surface classification system that uses mobile sensor data to detect potholes and other road surface anomalies, providing their location information through a Flutter web application. The system utilizes a custom CNN-BiLSTM architecture for multi-class classification, leveraging the tri-axial accelerometer, gyroscope, and GPS receiver.
 
