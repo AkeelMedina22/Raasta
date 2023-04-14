@@ -99,6 +99,9 @@ def get_data():
         new_acc_y.append(new_val[1])
         new_acc_z.append(new_val[2])
 
+    # accelerometer_x = new_acc_x
+    # accelerometer_y = new_acc_y
+    # accelerometer_z = new_acc_z
     accelerometer50_x = []
     accelerometer50_y = []
     accelerometer50_z = []
