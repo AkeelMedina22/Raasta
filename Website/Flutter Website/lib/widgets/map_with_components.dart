@@ -34,12 +34,12 @@ class _MapWithComponentsState extends State<MapWithComponents> {
     List<Map<dynamic, dynamic>> pothole = await API.getPoints(key, "Pothole");
     List<Map<dynamic, dynamic>> speedbreaker =
         await API.getPoints(key, "Speedbreaker");
-    List<Map<dynamic, dynamic>> badroad = await API.getPoints(key, "BadRoad");
+    //List<Map<dynamic, dynamic>> badroad = await API.getPoints(key, "BadRoad");
 
     List<Map<dynamic, dynamic>> points = [];
     points.addAll(pothole);
     points.addAll(speedbreaker);
-    points.addAll(badroad);
+    //points.addAll(badroad);
 
     for (int i = 0; i < points.length; i++) {
       points[i]['icon'] = await MarkerIcon.markerFromIcon(
@@ -47,11 +47,12 @@ class _MapWithComponentsState extends State<MapWithComponents> {
         points[i]['type'] == 'Speedbreaker'
             ? Colors.yellow
             : points[i]['type'] == "Pothole"
-                ? Colors.red
-                : points[i]['type'] == 'BadRoad'
-                    ? Colors.orange
-                    : Colors.blue,
-        20,
+                ? Colors.red 
+
+                //: points[i]['type'] == 'BadRoad'
+                    // ? Colors.orange
+                    : Colors.blue, 
+                  20,
       );
     }
 
