@@ -3,7 +3,8 @@ import 'dart:convert';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
-String APIURL = "127.0.0.1:5000";
+//String APIURL = "127.0.0.1:5000";
+String APIURL = "raasta.pythonanywhere.com";
 
 class API {
   static Future<String> getKey() async {
@@ -22,7 +23,8 @@ class API {
     //   throw Exception(response.reasonPhrase);
     // }
 
-    http.Response response = await http.get(Uri.http(APIURL, '/get_key'));
+    http.Response response = await http.get(Uri.https(APIURL, '/get_key'));
+    //http.Response response =        await http.get(Uri.http('https://raasta.pythonanywhere.com/get_key'));
     var data = jsonDecode(response.body);
     var message = data["key"];
     final api_key = message;
@@ -72,7 +74,8 @@ class API {
     //   }
 
     http.Response data = await http.get(
-        Uri.http(APIURL, '/get_points/$type_point'),
+        Uri.https(APIURL, '/get_points/$type_point'),
+        //Uri.http('https://raasta.pythonanywhere.com/get_points/$type_point'),
         headers: {"Authorization": key});
     var data_points = jsonDecode(data.body);
     final points = data_points["Points"];
@@ -92,7 +95,8 @@ class API {
 
   static Future<LatLng> getPlacePoints(place) async {
     http.Response response =
-        await http.get(Uri.http(APIURL, '/get_place_coords/$place'));
+        await http.get(Uri.https(APIURL, '/get_place_coords/$place'));
+        //await http.get(Uri.http('https://raasta.pythonanywhere.com/get_place_coords/$place'));
     final place_info = jsonDecode(response.body);
     final place_lat = place_info['result']['geometry']['location']['lat'];
     final place_lng = place_info['result']['geometry']['location']['lng'];
@@ -101,14 +105,17 @@ class API {
 
   static Future<List> getSuggestions(searchTerm, c_lat, c_lng) async {
     http.Response response = await http
-        .get(Uri.http(APIURL, '/autocomplete/$searchTerm/$c_lat/$c_lng'));
+        .get(Uri.https(APIURL, '/autocomplete/$searchTerm/$c_lat/$c_lng'));
+        //.get(Uri.http(            'https://raasta.pythonanywhere.com/autocomplete/$searchTerm/$c_lat/$c_lng'));
     List predictions = jsonDecode(response.body);
     return predictions;
   }
 
   static Future<dynamic> getDirections(o_lat, o_lng, d_lat, d_lng) async {
     http.Response route = await http
-        .get(Uri.http(APIURL, '/directions/$o_lat/$o_lng/$d_lat/$d_lng'));
+        .get(Uri.https(APIURL, '/directions/$o_lat/$o_lng/$d_lat/$d_lng'));
+        //.get(Uri.http(            'https://raasta.pythonanywhere.com//directions/$o_lat/$o_lng/$d_lat/$d_lng'));
+
     var data = jsonDecode(route.body);
     return data;
   }
