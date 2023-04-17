@@ -72,7 +72,7 @@ def get_potholes(TypePoints):
     if request.headers["Authorization"] == key:
       pothole = []
       speedbreaker = []
-      badroad = []
+      #badroad = []
 
       if TypePoints == "Pothole":
         result = firebase.get('/pothole-locations', None)
@@ -92,14 +92,14 @@ def get_potholes(TypePoints):
             speedbreaker.append(latlong)
         return({"Points" : speedbreaker})
       
-      elif TypePoints == "BadRoad":
-        result = firebase.get('/badroad-locations', None)
-        for key1, value in result.items():
-            latlong = []
-            for key2, value2 in value.items():
-                latlong.append(value2)
-            badroad.append(latlong)
-        return({"Points" : badroad})
+      # elif TypePoints == "BadRoad":
+      #   result = firebase.get('/badroad-locations', None)
+      #   for key1, value in result.items():
+      #       latlong = []
+      #       for key2, value2 in value.items():
+      #           latlong.append(value2)
+      #       badroad.append(latlong)
+      #   return({"Points" : badroad})
       
       else:
         return({"Points" : "Invalid type of points requested"})
