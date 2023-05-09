@@ -18,7 +18,6 @@ CORS(app, support_credentials=True)
 key = ""
 # connect to firebase
 firebase = firebase.FirebaseApplication('https://raasta-c542d-default-rtdb.asia-southeast1.firebasedatabase.app/', None)
-gmaps = googlemaps.Client(key = 'AIzaSyA9j3ueqN9J9KHKGJGz6iB5CJtV7x5Cuyc')
 
 template = {
   "info": {
