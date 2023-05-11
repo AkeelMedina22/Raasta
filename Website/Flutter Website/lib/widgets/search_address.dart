@@ -33,11 +33,6 @@ class MapSearchField extends StatelessWidget {
         
     Future<List<Map<String, String>>> fetchSuggestions(String searchTerm) async {
       List<Map<String, String>> results = [];
-
-      // final currentPosition = await current_location.getCurrentLocation();
-      // final c_lat = currentPosition.latitude;
-      // final c_lng = currentPosition.longitude;
-
       List predictions = await API.getSuggestions(searchTerm, 24.9059, 67.1383);
       Map<String, String> m;
       for (var p in predictions) {
@@ -48,33 +43,6 @@ class MapSearchField extends StatelessWidget {
       }
       return results;
     }
-
-    // return Container(
-    //   margin: const EdgeInsets.all(20),
-    //   child: TextField(
-    //     controller: searchController,
-    //     onChanged: (searchText) async {
-    //       var x = await fetchSuggestions(searchText);
-    //       onResultsGenerated(x);
-    //     },
-    //     decoration: InputDecoration(
-    //       prefixIcon: const Icon(Icons.search),
-    //       filled: true,
-    //       fillColor: Colors.white,
-    //       suffixIcon: IconButton(
-    //         icon: const Icon(Icons.close),
-    //         onPressed: () {
-    //           searchController.clear();
-    //           onResultsGenerated([]);
-    //         },
-    //       ),
-    //       hintText: 'Search...',
-    //       border: OutlineInputBorder(
-    //         borderRadius: BorderRadius.circular(25),
-    //       ),
-    //     ),
-    //   ),
-    // );
 
     return Positioned(
         top: 8,
@@ -140,7 +108,7 @@ class MapSearchField extends StatelessWidget {
                           behavior: HitTestBehavior.opaque,
                           onTap: () {
                             searchController.clear();
-                            onResultsGenerated([{'name' : "None"}]);
+                            onResultsGenerated([]);
                           },
                           child: Icon(Icons.close),
                         ),
