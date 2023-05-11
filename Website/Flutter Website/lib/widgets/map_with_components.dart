@@ -236,9 +236,50 @@ class _MapWithComponentsState extends State<MapWithComponents> {
     var result = distance(nearest, latLng) * 10000;
     return result;
   }
+  
 
+//show visited functionality here
+  List<Polyline>? visited = null;
   @override
   Widget build(BuildContext context) {
+    final Widget visitedButton = Stack(
+    children: [
+      Positioned(
+        bottom: 215.0,
+        right: 10.0,
+        
+      child: ElevatedButton(
+      onPressed: () async {
+        if (visited != null) {
+          return setState(() => visited = null);
+        }
+        showDialog(
+          context: context,
+          builder: (context) => Dialog(child: Padding(
+            padding: const EdgeInsets.all(30),
+            child: Text("LOADING \n Note: These are routes on which road data was collected",
+            textAlign: TextAlign.center,
+            ),
+            
+          )),
+        );
+        // get key
+        var key = await API.getKey();
+        // get visited
+        visited = await API.getVisited(key);
+        Navigator.of(context).pop();
+        // show visited
+        setState(() {});
+      },
+      child: Text(
+        visited != null ? "Hide Visited Routes" : "Show Visited Routes",
+      ),
+    ),
+    ),
+    ],
+    );
+
+    
     final Widget searchBar = MapSearchField(
       searchController: searchController,
       onResultsGenerated: (results) {
@@ -498,7 +539,10 @@ class _MapWithComponentsState extends State<MapWithComponents> {
               target: LatLng(24.9059, 67.1383),
               zoom: 16,
             ),
-            polylines: {if (route != null) route!},
+            polylines: {
+              if (route != null) route!,
+              if (visited != null) ...visited!
+            },
             onMapCreated: (controller) => _mapController.complete(controller),
             markers: {
               if (start != null)
@@ -535,6 +579,7 @@ class _MapWithComponentsState extends State<MapWithComponents> {
       children: [
         gMap,
         searchBar,
+        visitedButton,
         searchResultView,
         myIndicator(context),
         startButton,
@@ -581,3 +626,348 @@ class _MapWithComponentsState extends State<MapWithComponents> {
     // );
   }
 }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final Widget searchBar = MapSearchField(
+//       searchController: searchController,
+//       onResultsGenerated: (results) {
+//         bool areSame = true;
+//         if (results[0]['name'] == "None") {
+//           setState(() {
+//             searchResults = [];
+//           });
+//         } else {
+//           if (results.length != searchResults.length) areSame = false;
+//           for (int i = 0; i < results.length && areSame; i++) {
+//             if (results[i].values.first != searchResults[i].values.first ||
+//                 results[i].values.last != searchResults[i].values.last) {
+//               areSame = false;
+//             }
+//           }
+//           if (!areSame) setState(() => searchResults = results);
+//         }
+//       },
+//     );
+
+//     final Widget startButton = Stack(
+//       children: [
+//         if (selected && !_start && !_end)
+//           Positioned(
+//             top: 65,
+//             left: 600,
+//             right: 600,
+//             child: ElevatedButton(
+//               onPressed: () async {
+//                 if (start != null) {
+//                   await animateCamera(start!);
+//                   setState(() {
+//                     _start = true;
+//                     selected = false;
+//                   });
+//                   searchResults = [];
+//                   searchController.clear();
+//                 } else {
+//                   start = await getLatLng();
+//                 }
+//               },
+//               child: const Text("Start"),
+//             ),
+//           ),
+//         if (selected && _start && !_end)
+//           Positioned(
+//             top: 65,
+//             left: 600,
+//             right: 600,
+//             child: ElevatedButton(
+//               onPressed: () async {
+//                 if (end != null) {
+//                   if (end != start) {
+//                     await animateCamera(end!);
+//                     route = await fetchRoute(start!, end!);
+//                     setState(() {
+//                       _end = true;
+//                     });
+//                     searchResults = [];
+//                     searchController.clear();
+//                   } else {
+//                     // error dialog box should appear
+//                   }
+//                 } else {
+//                   end = await getLatLng();
+//                 }
+//               },
+//               child: const Text("End"),
+//             ),
+//           ),
+//         if (_start || _end)
+//           Positioned(
+//             // bottom: 640.0,
+//             // right: 35.0,
+//             bottom: 250.0,
+//             right: 50.0,
+//             child: ElevatedButton(
+//               onPressed: () async {
+//                 await animateCamera(LatLng(24.9059, 67.1383));
+//                 setState(() {
+//                   selected = false;
+//                   _start = false;
+//                   _end = false;
+//                   route = null;
+//                   start = null;
+//                   end = null;
+//                   markerFuture = updateMarkers();
+//                 });
+//               },
+//               child: const Text("Reset"),
+//             ),
+//           ),
+//       ],
+//     );
+
+//     // final Widget buttonColumn = Container(
+//     //   alignment: Alignment.topRight,
+//     //   padding: const EdgeInsets.fromLTRB(0, 20, 20, 0),
+//     //   child: Column(
+//     //     mainAxisSize: MainAxisSize.min,
+//     //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//     //     crossAxisAlignment: CrossAxisAlignment.end,
+//     //     children: [
+
+//     //       // ElevatedButton(
+//     //       //   onPressed: () async {
+//     //       //     if (start != null) {
+//     //       //       await animateCamera(start!);
+//     //       //     } else {
+//     //       //       start = await getLatLng();
+//     //       //       setState(() {});
+//     //       //     }
+//     //       //   },
+//     //       //   child: const Text("Start"),
+//     //       // ),
+//     //       ElevatedButton(
+//     //         onPressed: () async {
+//     //           if (end != null) {
+//     //             await animateCamera(end!);
+//     //           } else {
+//     //             end = await getLatLng();
+//     //             setState(() {});
+//     //           }
+//     //         },
+//     //         child: const Text("End"),
+//     //       ),
+//     //       ElevatedButton(
+//     //         onPressed: () async {
+//     //           if (start != null && end != null) {
+//     //             route = await fetchRoute(start!, end!);
+//     //             setState(() {});
+//     //           }
+//     //         },
+//     //         child: const Text("Generate Route"),
+//     //       ),
+//     //       ElevatedButton(
+//     //         onPressed: () => setState(
+//     //           () {
+//     //             start = null;
+//     //             end = null;
+//     //             route = null;
+//     //             markerFuture = updateMarkers();
+//     //           },
+//     //         ),
+//     //         child: const Text("Reset"),
+//     //       ),
+//     //     ]
+//     //         .map((e) => Padding(
+//     //               padding: const EdgeInsets.only(bottom: 20),
+//     //               child: e,
+//     //             ))
+//     //         .toList(),
+//     //   ),
+//     // );
+
+//     final Widget searchResultView = searchResults.isEmpty
+//         ? const SizedBox.shrink()
+//         : Positioned(
+//             top: 56,
+//             left: 250,
+//             right: 250,
+//             child: Card(
+//               elevation: 4.0,
+//               shape: RoundedRectangleBorder(
+//                 borderRadius: BorderRadius.circular(8.0),
+//               ),
+//               child: ListView.builder(
+//                 shrinkWrap: true,
+//                 itemCount: searchResults.length,
+//                 itemBuilder: (context, index) {
+//                   return ListTile(
+//                     title: Text(searchResults[index].values.first),
+//                     onTap: () async {
+//                       final place = searchResults[index]['place_id'];
+//                       LatLng latLng = await API.getPlacePoints(place);
+//                       await animateCamera(latLng);
+//                       searchController.text = searchResults[index]['name']!;
+//                       setState(() {
+//                         searchResults = [];
+//                         selected = true;
+//                       });
+//                     },
+//                   );
+//                 },
+//               ),
+//             ),
+//           );
+
+//     // final Widget searchResultView = DecoratedBox(
+//     //   decoration: const BoxDecoration(
+//     //     color: Colors.white,
+//     //   ),
+//     //   child: searchResults.isEmpty
+//     //       ? const Center(
+//     //           child: Text("Search results will appear here"),
+//     //         )
+//     //       : ListView.separated(
+//     //           padding: const EdgeInsets.symmetric(vertical: 10),
+//     //           separatorBuilder: (context, index) => const Divider(),
+//     //           itemCount: searchResults.length,
+//     //           itemBuilder: (context, index) => ListTile(
+//     //             leading: const Icon(Icons.location_on_outlined),
+//     //             title: Text(searchResults[index].values.first),
+//     //             onTap: () async {
+//     //               // var response = await http.get(
+//     //               //   Uri.https(
+//     //               //     'cors-anywhere.herokuapp.com',
+//     //               //     'https://maps.googleapis.com/maps/api/place/details/json',
+//     //               //     {
+//     //               //       'key': 'AIzaSyA9j3ueqN9J9KHKGJGz6iB5CJtV7x5Cuyc',
+//     //               //       'language': 'en',
+//     //               //       'place_id': searchResults[index]['place_id'],
+//     //               //       'fields': "geometry",
+//     //               //     },
+//     //               //   ),
+//     //               // );
+//     //               // Map location = jsonDecode(response.body)['result']['geometry']
+//     //               //     ['location'];
+//     //               // LatLng latLng = LatLng(
+//     //               //   location.values.first,
+//     //               //   location.values.last,
+//     //               // );
+//     //               final place = searchResults[index]['place_id'];
+//     //               http.Response response = await http.get(Uri.http(apiUrl, '/get_place_coords/$place'));
+//     //               final place_info = jsonDecode(response.body);
+//     //               final place_lat = place_info['result']['geometry']['location']['lat'];
+//     //               final place_lng = place_info['result']['geometry']['location']['lng'];
+//     //               LatLng latLng = LatLng(place_lat, place_lng);
+//     //               await animateCamera(latLng);
+//     //               searchController.text = searchResults[index]['name']!;
+//     //             },
+//     //           ),
+//     //         ),
+//     // );
+
+//     final Widget gMap = Stack(
+//       children: [
+//         FutureBuilder(
+//           future: markerFuture,
+//           initialData: [
+//             if (start != null)
+//               Marker(
+//                 markerId: const MarkerId('START'),
+//                 position: start!,
+//                 infoWindow: const InfoWindow(title: 'START'),
+//               ),
+//             if (end != null)
+//               Marker(
+//                 markerId: const MarkerId('END'),
+//                 position: end!,
+//                 infoWindow: const InfoWindow(title: 'END'),
+//               )
+//           ],
+//           builder: (context, snapshot) => GoogleMap(
+//             initialCameraPosition: const CameraPosition(
+//               target: LatLng(24.9059, 67.1383),
+//               zoom: 16,
+//             ),
+//             polylines: {if (route != null) route!},
+//             onMapCreated: (controller) => _mapController.complete(controller),
+//             markers: {
+//               if (start != null)
+//                 Marker(
+//                   markerId: const MarkerId('START'),
+//                   position: start!,
+//                   infoWindow: const InfoWindow(title: 'START'),
+//                 ),
+//               if (end != null)
+//                 Marker(
+//                   markerId: const MarkerId('END'),
+//                   position: end!,
+//                   infoWindow: const InfoWindow(title: 'END'),
+//                 ),
+//               ...snapshot.data!.where(
+//                 (marker) => route == null
+//                     ? true
+//                     : distanceFromRoute(route!, marker.position) < 0.0001,
+//               ),
+//             },
+//           ),
+//         ),
+//         // map pin
+//         Center(
+//           child: Padding(
+//             padding: EdgeInsets.only(bottom: IconTheme.of(context).size!),
+//             child: const Icon(Icons.location_on),
+//           ),
+//         ),
+//       ],
+//     );
+
+//     return Stack(
+//       children: [
+//         gMap,
+//         searchBar,
+//         searchResultView,
+//         myIndicator(context),
+//         startButton,
+//       ],
+//     );
+
+//     // return Container(
+//     //   clipBehavior: Clip.antiAlias,
+//     //   decoration: BoxDecoration(
+//     //     color: Colors.grey.shade400,
+//     //     borderRadius: BorderRadius.circular(25),
+//     //   ),
+//     //   child: Column(
+//     //     children: [
+//     //       // address bar
+//     //       searchBar,
+//     //       // search results, map
+//     //       Expanded(
+//     //         child: Row(
+//     //           children: [
+//     //             // results
+//     //             SizedBox(
+//     //               width: 300,
+//     //               child: searchResultView,
+//     //             ),
+//     //             // map
+//     //             Expanded(
+//     //               child: Stack(
+//     //                 children: [
+//     //                   gMap,
+//     //                   // button column
+//     //                   Align(
+//     //                     alignment: Alignment.topRight,
+//     //                     child: buttonColumn,
+//     //                   ),
+//     //                 ],
+//     //               ),
+//     //             ),
+//     //           ],
+//     //         ),
+//     //       ),
+//     //     ],
+//     //   ),
+//     // );
+//   }
+// }
