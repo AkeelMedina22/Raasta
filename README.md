@@ -14,7 +14,7 @@ Karachi's roads have been continuously neglected due to insufficient funding and
 
 Raasta is composed of several components, each designed and implemented by different team members:
 
-1. **Data Collection Application** - Abeer Khan 
+1. **Data Collection Application** - Abeer Khan, Akeel Ather Medina 
     - The folder titled [Sensor Application](https://github.com/AkeelMedina22/Raasta/tree/main/Sensor%20Application) contains an Android-based data collection application, developed using Kotlin. This application enables individuals to collect data on their daily commutes, which can provide valuable insights into the current state of road conditions in Karachi. The collected sensor data is transmitted and stored in a non-relational database hosted on Firebase, which serves as a central repository for all the collected sensor data, facilitating easy access and analysis of the data.
     - The sensor data collected includes various road conditions such as potholes, speed breakers, traffic, and poor road quality. The application features a tri-axial accelerometer and gyroscope integration, along with GPS receiver usage to determine the smartphone's location during the commute at specified intervals. These features allow the application to accurately detect the conditions a vehicle is traveling through and its position. API's like SensorManager and FusedLocationProviderClient are utilized in the application.
 
