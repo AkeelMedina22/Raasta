@@ -1,6 +1,4 @@
 import 'dart:core';
-import 'dart:core';
-
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../screens/about.dart';
@@ -53,41 +51,6 @@ class _MyScaffoldState extends State<MyScaffold> {
 
     return Scaffold(
       key: _scaffoldKey,
-      // drawer: tabIndex == 0
-      //     ? Drawer(
-      //         child: ListView(
-      //           padding: const EdgeInsets.only(
-      //             left: 15,
-      //           ),
-      //           children: <Widget>[
-      //             Row(children: [
-      //               Container(
-      //                   height: 60.0,
-      //                   child: Row(
-      //                     children: [
-      //                       IconButton(
-      //                         icon: const Icon(Icons.menu),
-      //                         splashColor: Colors.transparent,
-      //                         highlightColor: Colors.transparent,
-      //                         hoverColor: Colors.transparent,
-      //                         color: Colors.black,
-      //                         onPressed: () {
-      //                           Navigator.pop(context);
-      //                         },
-      //                       ),
-      //                       const Padding(
-      //                         padding: EdgeInsets.only(left: 15),
-      //                         child: Text('RAASTA',
-      //                             style: TextStyle(
-      //                                 color: Colors.black,
-      //                                 fontWeight: FontWeight.bold)),
-      //                       )
-      //                     ],
-      //                   ))
-      //             ])
-      //           ],
-      //         ))
-      //     : null,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 1,
@@ -96,16 +59,6 @@ class _MyScaffoldState extends State<MyScaffold> {
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         actions: tabButtons,
-        // leading: tabIndex == 0
-        //     ? IconButton(
-        //         icon: const Icon(Icons.menu),
-        //         splashColor: Colors.transparent,
-        //         highlightColor: Colors.transparent,
-        //         hoverColor: Colors.transparent,
-        //         color: Colors.black,
-        //         onPressed: () => _scaffoldKey.currentState,
-        //         //?.openDrawer(),
-        //       ) : null,
       ),
       body: tabs[tabIndex][1],
     );
