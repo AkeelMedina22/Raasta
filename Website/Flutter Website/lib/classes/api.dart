@@ -119,4 +119,36 @@ class API {
     var data = jsonDecode(route.body);
     return data;
   }
+  static Future<List<Polyline>> getVisited(String key) async {
+    var headers = {'Authorization': key};
+    var request = http.Request(
+      'GET',
+      Uri.parse('https://raasta.pythonanywhere.com/get_visited'),
+    );
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var x = jsonDecode(await response.stream.bytesToString());
+      List result = x['result'];
+      List<List<LatLng>> routes = result
+          .map<List<LatLng>>(
+            (e) => e
+                .map<LatLng>(
+                  (e) => LatLng(e.entries.first.value, e.entries.last.value),
+                )
+                .toList(),
+          )
+          .toList();
+      int i = 0;
+      return routes.map<Polyline>(
+        (e) {
+          i++;
+          return Polyline(polylineId: PolylineId(i.toString()), width:4,points: e);
+        },
+      ).toList();
+    } else
+      throw Exception();
+  }
 }
